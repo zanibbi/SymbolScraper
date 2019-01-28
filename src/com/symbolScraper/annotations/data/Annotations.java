@@ -1,4 +1,6 @@
-package com.MathScraper.annotations.data;
+package com.symbolScraper.annotations.data;
+
+import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,7 +15,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class BoundingBox {
+public class Annotations {
 	
-	Double left, top, right, bottom;
+	Heading heading;
+	
+	@Setter(AccessLevel.PUBLIC)
+	List<Sheet> sheets;
 }

@@ -1,4 +1,4 @@
-package com.MathScraper.constants;
+package com.symbolScraper.constants;
 
 public class Constants {
 	

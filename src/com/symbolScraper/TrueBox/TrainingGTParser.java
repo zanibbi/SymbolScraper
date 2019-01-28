@@ -1,4 +1,4 @@
-package com.MathScraper.TrueBox;
+package com.symbolScraper.TrueBox;
 import org.jdom2.*;
 import org.jdom2.input.SAXBuilder;
 import org.w3c.dom.NodeList;

@@ -1,4 +1,4 @@
-﻿package com.MathScraper.TrueBox;
+﻿package com.symbolScraper.TrueBox;
 
 import org.apache.commons.compress.utils.Charsets;
 import org.apache.pdfbox.contentstream.operator.color.*;

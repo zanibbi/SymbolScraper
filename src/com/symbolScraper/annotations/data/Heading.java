@@ -1,6 +1,4 @@
-package com.MathScraper.annotations.data;
-
-import java.util.List;
+package com.symbolScraper.annotations.data;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,11 +13,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class Text {
+public class Heading {
 	
-	Long componentId;
-	BoundingBox boundingBox;
+	String heading;
 	
-	@Setter(AccessLevel.PUBLIC)
-	List<Line> lines;
 }

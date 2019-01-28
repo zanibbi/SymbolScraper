@@ -1,4 +1,4 @@
-package com.MathScraper.annotations.data;
+package com.symbolScraper.annotations.data;
 
 import java.util.List;
 
@@ -15,17 +15,11 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class Sheet {
+public class Text {
 	
-	// This class stores annotations per page or sheet
-	
-	Long pageId;
-	String fileName;
+	Long componentId;
+	BoundingBox boundingBox;
 	
 	@Setter(AccessLevel.PUBLIC)
-	List<Text> textAreas;
-	
-	@Setter(AccessLevel.PUBLIC)
-	List<Image> imageAreas;
-	
+	List<Line> lines;
 }

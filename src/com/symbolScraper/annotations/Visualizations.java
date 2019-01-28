@@ -1,4 +1,4 @@
-package com.MathScraper.annotations;
+package com.symbolScraper.annotations;
 
 public class Visualizations {
 	

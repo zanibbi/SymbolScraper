@@ -1,4 +1,4 @@
-package com.MathScraper.TrueBox;
+package com.symbolScraper.TrueBox;
 
 import javax.imageio.ImageIO;
 import java.applet.Applet;

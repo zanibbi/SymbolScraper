@@ -1,4 +1,4 @@
-package com.MathScraper.annotations.data;
+package com.symbolScraper.annotations.data;
 
 import java.util.List;
 

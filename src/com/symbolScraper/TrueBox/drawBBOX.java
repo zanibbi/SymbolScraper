@@ -1,12 +1,12 @@
-package com.MathScraper.TrueBox;
+package com.symbolScraper.TrueBox;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 
-import static com.MathScraper.TrueBox.Main.Inpfilename;
-import static com.MathScraper.TrueBox.Main.OutDir;
-import static com.MathScraper.TrueBox.Main.fileseparator;
+import static com.symbolScraper.TrueBox.Main.Inpfilename;
+import static com.symbolScraper.TrueBox.Main.OutDir;
+import static com.symbolScraper.TrueBox.Main.fileseparator;
 
 import java.awt.*;
 import java.io.File;

@@ -1,4 +1,4 @@
-package com.MathScraper.annotations.data;
+package com.symbolScraper.annotations.data;
 
 public enum TextMode {
 	ORDINARY_TEXT, // 0

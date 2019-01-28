@@ -5,7 +5,7 @@
  * https://github.com/uchidalab/GTDB-Dataset 
  */
 
-package com.MathScraper.annotations;
+package com.symbolScraper.annotations;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -16,17 +16,17 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.MathScraper.annotations.data.Annotations;
-import com.MathScraper.annotations.data.BoundingBox;
-import com.MathScraper.annotations.data.CharData;
-import com.MathScraper.annotations.data.Heading;
-import com.MathScraper.annotations.data.Image;
-import com.MathScraper.annotations.data.Line;
-import com.MathScraper.annotations.data.LinkLabel;
-import com.MathScraper.annotations.data.Sheet;
-import com.MathScraper.annotations.data.Text;
-import com.MathScraper.annotations.data.TextMode;
-import com.MathScraper.constants.Constants;
+import com.symbolScraper.annotations.data.Annotations;
+import com.symbolScraper.annotations.data.BoundingBox;
+import com.symbolScraper.annotations.data.CharData;
+import com.symbolScraper.annotations.data.Heading;
+import com.symbolScraper.annotations.data.Image;
+import com.symbolScraper.annotations.data.Line;
+import com.symbolScraper.annotations.data.LinkLabel;
+import com.symbolScraper.annotations.data.Sheet;
+import com.symbolScraper.annotations.data.Text;
+import com.symbolScraper.annotations.data.TextMode;
+import com.symbolScraper.constants.Constants;
 
 public class AnnotationReader {
 	

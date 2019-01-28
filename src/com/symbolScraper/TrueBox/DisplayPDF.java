@@ -1,4 +1,4 @@
-package com.MathScraper.TrueBox;
+package com.symbolScraper.TrueBox;
 
 import java.util.ArrayList;
 import java.util.Arrays;

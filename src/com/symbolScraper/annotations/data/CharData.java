@@ -1,4 +1,4 @@
-package com.MathScraper.annotations.data;
+package com.symbolScraper.annotations.data;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,8 +13,13 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class Heading {
+public class CharData{
 	
-	String heading;
-	
+	Long characterId;
+	BoundingBox boundingBox;
+	TextMode textMode;
+	LinkLabel linkLabel;
+	Long parentId;
+	String OCRCode;
+
 }
