@@ -15,5 +15,5 @@ import lombok.ToString;
 
 public class BoundingBox {
 	
-	Double left, top, right, bottom;
+	Float left, top, right, bottom;
 }

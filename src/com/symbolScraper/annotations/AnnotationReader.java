@@ -65,7 +65,7 @@ public class AnnotationReader {
 		    		count = count + 1;
 		    		
 		    		if(count % 100 == 0) {
-		    			System.out.println("Processing line " + count);
+		    			System.out.print("Processing line " + count + "\r");
 		    		}
 		    	
 		    		// process the line.
@@ -209,11 +209,11 @@ public class AnnotationReader {
 	 */
 	private CharData handleCharData(String[] entries) {
 		
-		BoundingBox boundingBox = new BoundingBox(Double.parseDouble(entries[2]),
-												 Double.parseDouble(entries[3]),
-												 Double.parseDouble(entries[4]),
-												 Double.parseDouble(entries[5]));
-		
+		BoundingBox boundingBox = new BoundingBox(Float.parseFloat(entries[2]),
+												Float.parseFloat(entries[3]),
+												Float.parseFloat(entries[4]),
+												Float.parseFloat(entries[5]));
+										
 		TextMode textMode = null;
 		
 		if(entries[6].equals("0")) {
@@ -238,28 +238,28 @@ public class AnnotationReader {
 		switch(entries[7]) {
 			
 			case "0":
-				linkLabel = linkLabel.HORIZONTAL;
+				linkLabel = LinkLabel.HORIZONTAL;
 				break;
 			case "1":
-				linkLabel = linkLabel.RIGHT_SUP;
+				linkLabel = LinkLabel.RIGHT_SUP;
 				break;
 			case "2":
-				linkLabel = linkLabel.RIGHT_SUB;
+				linkLabel = LinkLabel.RIGHT_SUB;
 				break;
 			case "3":
-				linkLabel = linkLabel.LEFT_SUP;
+				linkLabel = LinkLabel.LEFT_SUP;
 				break;
 			case "4":
-				linkLabel = linkLabel.LEFT_SUB;
+				linkLabel = LinkLabel.LEFT_SUB;
 				break;
 			case "5":
-				linkLabel = linkLabel.UPPER;
+				linkLabel = LinkLabel.UPPER;
 				break;
 			case "6":
-				linkLabel = linkLabel.LOWER;
+				linkLabel = LinkLabel.LOWER;
 				break;
 			case "-1":
-				linkLabel = linkLabel.NONE;
+				linkLabel = LinkLabel.NONE;
 				break;
 			default:
 				System.out.println("This type of link label is not supported!");
@@ -280,10 +280,10 @@ public class AnnotationReader {
 	 */
 	private Line handleLine(String[] entries) {
 		
-		BoundingBox boundingBox = new BoundingBox(Double.parseDouble(entries[2]),
-				 Double.parseDouble(entries[3]),
-				 Double.parseDouble(entries[4]),
-				 Double.parseDouble(entries[5]));
+		BoundingBox boundingBox = new BoundingBox(Float.parseFloat(entries[2]),
+  												 Float.parseFloat(entries[3]),
+												 Float.parseFloat(entries[4]),
+												 Float.parseFloat(entries[5]));
 
 		return new Line(Long.parseLong(entries[1]), boundingBox, null/*chars*/);
 	}
@@ -295,10 +295,10 @@ public class AnnotationReader {
 	 */
 	private Image handleImage(String[] entries) {
 		
-		BoundingBox boundingBox = new BoundingBox(Double.parseDouble(entries[2]),
-				 Double.parseDouble(entries[3]),
-				 Double.parseDouble(entries[4]),
-				 Double.parseDouble(entries[5]));
+		BoundingBox boundingBox = new BoundingBox(Float.parseFloat(entries[2]),
+												 Float.parseFloat(entries[3]),
+												 Float.parseFloat(entries[4]),
+												 Float.parseFloat(entries[5]));
 
 		return new Image(Long.parseLong(entries[1]), boundingBox);
 
@@ -311,10 +311,11 @@ public class AnnotationReader {
 	 */
 	private Text handleText(String[] entries) {
 		
-		BoundingBox boundingBox = new BoundingBox(Double.parseDouble(entries[2]),
-				 Double.parseDouble(entries[3]),
-				 Double.parseDouble(entries[4]),
-				 Double.parseDouble(entries[5]));
+		BoundingBox boundingBox = new BoundingBox(Float.parseFloat(entries[2]),
+												 Float.parseFloat(entries[3]),
+												 Float.parseFloat(entries[4]),
+												 Float.parseFloat(entries[5]));
+							
 
 		return new Text(Long.parseLong(entries[1]), boundingBox, null/*lines*/);
 	}
