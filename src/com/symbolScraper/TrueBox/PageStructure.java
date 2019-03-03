@@ -1,11 +1,15 @@
 package com.symbolScraper.TrueBox;
 
-import org.apache.pdfbox.text.TextPosition;
-
-import java.awt.geom.GeneralPath;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
+import org.apache.pdfbox.text.TextPosition;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 class PageStructure{
     int pageId;
@@ -14,6 +18,8 @@ class PageStructure{
     HashMap<Integer,characterInfo> pageCharacters;
     HashMap<Integer,compundCharacter> pageCompundCharacters;
     metadata meta;
+    public float xmax = Integer.MIN_VALUE, xmin = Integer.MAX_VALUE, ymax = Integer.MIN_VALUE, ymin = Integer.MAX_VALUE;
+    
     PageStructure(int pgId, ArrayList<Line> sent,ArrayList<Bars> bars, HashMap<Integer,characterInfo> pageChar,HashMap<Integer,compundCharacter> comChar, metadata meta){
         this.pageId=pgId;
         this.Lines=sent;
@@ -134,14 +140,21 @@ class baseLine{
     }
 }
 
+@Getter
+@Setter
+@AllArgsConstructor
+@ToString
 class metadata{
     int linecount;
     int wordcount;
     int charactercount;
+    String transformation;
+    
     metadata(int linecount,int wordcount, int charactercount){
         this.linecount=linecount;
         this.wordcount=wordcount;
         this.charactercount=charactercount;
+        this.transformation = null;
     }
 }
 

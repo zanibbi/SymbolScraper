@@ -83,14 +83,15 @@ class BoundingBox extends PDFTextStripper {
         addOperator(new SetNonStrokingColorN());
     }
 
-    public void getGeometricInfo(int pagenum) throws IOException {
+    public String getGeometricInfo(int pagenum) throws IOException {
         BarDetection barD = new BarDetection(document.getPage(pagenum));
         currentPage.bars=barD.getAllBars();
         extract(pagenum);
-        getBoundingBox();
+        String transformation = getBoundingBox();
         includeBars();
-
         //drawBBOX(this.currentPage.pageCharacters,"Page");
+
+        return transformation;
     }
 
     public void extract(int pageNum) throws IOException {
@@ -159,7 +160,7 @@ class BoundingBox extends PDFTextStripper {
             if(colorList.get(charId).unicode==value){
                 textColor = colorList.get(charId);
             }else{
-                System.out.println("Color and text mismatch Text unicode: "+ value+" Color unicode :"+colorList.get(charId).unicode+" charid :"+charId);
+                //System.out.println("Color and text mismatch Text unicode: "+ value+" Color unicode :"+colorList.get(charId).unicode+" charid :"+charId);
             }
 
             characterInfo character = new characterInfo(charId,value,text,null,null,merge,wordId,lineId-1,textColor);
@@ -210,31 +211,41 @@ class BoundingBox extends PDFTextStripper {
 
 
 
-    public void getBoundingBox() throws IOException {
+    public String getBoundingBox() throws IOException {
         HashMap<Integer, characterInfo> charList = currentPage.pageCharacters;
 
         Iterator iter = charList.entrySet().iterator();
 
+        boolean first = true;
+        String transformation = "";
+        
         while (iter.hasNext()) {
             Map.Entry pair = (Map.Entry) iter.next();
 
             characterInfo character = (characterInfo) pair.getValue();
 
             TextPosition text = character.charInfo;
-
-
+        	
             float startX = text.getTextMatrix().getTranslateX();
             float startY = text.getTextMatrix().getTranslateY();
-
+        	
+            
+            if(first) {
+            	transformation = startX + "," + startY;
+            	System.out.println("--> X " + startX + " Y " + startY);
+            	//System.out.println("w,h --> " + text.getWidth() + " , " + text.getHeight());
+            	first = false;
+            }
+            
+            currentPage.xmax = Math.max(startX, currentPage.xmax);
+            currentPage.xmin = Math.min(startX, currentPage.xmin);
+            currentPage.ymax = Math.max(startY, currentPage.ymax);
+            currentPage.ymin = Math.min(startY, currentPage.ymin);
+            
             float fontSize = text.getFontSize();
 
-            //PDType1Font font = (PDType1Font) text.getFont();
-
             PDFont font = text.getFont();
-
-
             drawGlyph glyph=null;
-
 
             if (font instanceof PDTrueTypeFont){
                 PDTrueTypeFont TTFfont = (PDTrueTypeFont) font;
@@ -395,13 +406,9 @@ class BoundingBox extends PDFTextStripper {
                     previousCharacter= new compundCharacter(mergeId,character.value,neighList,tempBox,character.charInfo.getFontSize());
                 }
             }
-
-
-
-
         }
-
-
+        
+        return transformation;
     }
 
 
@@ -429,10 +436,6 @@ class BoundingBox extends PDFTextStripper {
         boolean result = p.matcher(value).find();
         return  result;
     }
-
-
-
-
 
     public void includeBars(){
         //includeRadicalBars();

@@ -43,7 +43,8 @@ public class AnnotationReader {
 		int count = 0;
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-		    String line = null;
+		    
+			String line = null;
 		    
 		    line = br.readLine();
 		    
@@ -51,117 +52,117 @@ public class AnnotationReader {
 		    // For example, 
 		    // Infty GT-Data Format Ver.1.1
 		    if(!StringUtils.isEmpty(line)) {
-		    		heading = new Heading(line);
-	    		}
-			
-	    		Sheet currentSheet = null;
-	    		Text currentText = null;
-	    		Image currentImage = null;
-	    		Line currentLine = null;
-	    		CharData currentChar = null;
+	    		heading = new Heading(line);
+    		}
+	
+    		Sheet currentSheet = null;
+    		Text currentText = null;
+    		Image currentImage = null;
+    		Line currentLine = null;
+    		CharData currentChar = null;
 
 		    while ((line = br.readLine()) != null) {
 		    		
-		    		count = count + 1;
-		    		
-		    		if(count % 100 == 0) {
-		    			System.out.print("Processing line " + count + "\r");
-		    		}
-		    	
-		    		// process the line.
-		    		String[] entries = StringUtils.split(line, Constants.CSV_SEPARATOR);
-		    		
-		    		switch(entries[0]) {
-		    		
-			    		case "Sheet":
+	    		count = count + 1;
+	    		
+	    		if(count % 100 == 0) {
+	    			System.out.println("Processing line " + count);
+	    		}
+	    	
+	    		// process the line.
+	    		String[] entries = StringUtils.split(line, Constants.CSV_SEPARATOR);
+	    		
+	    		switch(entries[0]) {
+	    		
+		    		case "Sheet":
 
-			    			if(currentSheet != null) {
-				    		
-			    				processLine(currentLine, lines, chars);
-				    			processText(currentText, lines, texts);
-				    			processImage(currentImage, images);
-				    			
-				    			currentSheet.setImageAreas(images);
-				    			currentSheet.setTextAreas(texts);
-			    				
-				    			sheets.add(currentSheet);
-				    			
-				    			chars = new ArrayList<>();
-				    			currentLine = null;
-
-				    			lines = new ArrayList<>();
-				    			currentText = null;
-				    			
-				    			currentImage = null;
-
-				    			texts = new ArrayList<>();
-				    			images = new ArrayList<>();
-			    			}
-			    			
-			    			currentSheet = handleSheet(entries);
-			    			break;
-		    			
-			    		case "Text":
-			    			
-			    			processLine(currentLine, lines, chars);
+		    			if(currentSheet != null) {
+			    		
+		    				processLine(currentLine, lines, chars);
 			    			processText(currentText, lines, texts);
 			    			processImage(currentImage, images);
+			    			
+			    			currentSheet.setImageAreas(images);
+			    			currentSheet.setTextAreas(texts);
+		    				
+			    			sheets.add(currentSheet);
+			    			
+			    			chars = new ArrayList<>();
+			    			currentLine = null;
+
+			    			lines = new ArrayList<>();
+			    			currentText = null;
 			    			
 			    			currentImage = null;
 
-			    			lines = new ArrayList<>();
-			    			currentText = null;
-
-			    			chars = new ArrayList<>();
-			    			currentLine = null;
-
-			    			currentText = handleText(entries);
-			    			break;
-			    			
-			    		case "Image":
-			    			
-			    			processLine(currentLine, lines, chars);
-			    			processText(currentText, lines, texts);
-			    			processImage(currentImage, images);
-			    			
-			    			lines = new ArrayList<>();
-			    			currentText = null;
-
-			    			chars = new ArrayList<>();
-			    			currentLine = null;
-
-			    			currentImage = handleImage(entries);
-			    			break;
-			    			
-			    		case "Line":
-			    			
-			    			processLine(currentLine, lines, chars);
-			    			chars = new ArrayList<>();
-			    			currentLine = null;
-
-			    			currentLine = handleLine(entries);
-			    			break;
-			    			
-		    			case "Chardata":
-		    				currentChar = handleCharData(entries);
-		    				chars.add(currentChar);
-		    				break;		    			
+			    			texts = new ArrayList<>();
+			    			images = new ArrayList<>();
+		    			}
 		    			
-		    			default:
-		    				System.out.println("This type of annotation is not supported!");
-		    		}
+		    			currentSheet = handleSheet(entries);
+		    			break;
+	    			
+		    		case "Text":
+		    			
+		    			processLine(currentLine, lines, chars);
+		    			processText(currentText, lines, texts);
+		    			processImage(currentImage, images);
+		    			
+		    			currentImage = null;
+
+		    			lines = new ArrayList<>();
+		    			currentText = null;
+
+		    			chars = new ArrayList<>();
+		    			currentLine = null;
+
+		    			currentText = handleText(entries);
+		    			break;
+		    			
+		    		case "Image":
+		    			
+		    			processLine(currentLine, lines, chars);
+		    			processText(currentText, lines, texts);
+		    			processImage(currentImage, images);
+		    			
+		    			lines = new ArrayList<>();
+		    			currentText = null;
+
+		    			chars = new ArrayList<>();
+		    			currentLine = null;
+
+		    			currentImage = handleImage(entries);
+		    			break;
+		    			
+		    		case "Line":
+		    			
+		    			processLine(currentLine, lines, chars);
+		    			chars = new ArrayList<>();
+		    			currentLine = null;
+
+		    			currentLine = handleLine(entries);
+		    			break;
+		    			
+	    			case "Chardata":
+	    				currentChar = handleCharData(entries);
+	    				chars.add(currentChar);
+	    				break;		    			
+	    			
+	    			default:
+	    				System.out.println("This type of annotation is not supported!");
+	    		}
 		    }
 		    
 		    if(currentSheet != null) {
 	    		
 				processLine(currentLine, lines, chars);
-	    			processText(currentText, lines, texts);
-	    			processImage(currentImage, images);
-	    			
-	    			currentSheet.setImageAreas(images);
-	    			currentSheet.setTextAreas(texts);
-	    			
-	    			sheets.add(currentSheet);
+    			processText(currentText, lines, texts);
+    			processImage(currentImage, images);
+    			
+    			currentSheet.setImageAreas(images);
+    			currentSheet.setTextAreas(texts);
+    			
+    			sheets.add(currentSheet);
 			}
 		    
 		}

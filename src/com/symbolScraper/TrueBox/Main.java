@@ -1,14 +1,29 @@
 package com.symbolScraper.TrueBox;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.io.FilenameUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jdom2.JDOMException;
 import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Scanner;
 
 public class Main {
 
@@ -302,6 +317,23 @@ public class Main {
         }
     }
 
+    public static void writeTransformationsToFile(String filename, List<PageStructure> allPages) throws IOException {
+    	
+    	String basename = FilenameUtils.getBaseName(filename);
+		String path	= FilenameUtils.getFullPath(filename);
+		
+		Path destFile = Paths.get(path, basename + ".md");
+		
+    	BufferedWriter writer = new BufferedWriter(new FileWriter(destFile.toString()));
+        
+    	for(PageStructure pageStructure: allPages) {
+        	
+    		writer.append(pageStructure.meta.getTransformation());
+    		writer.append("\n");
+        }
+    	
+    	writer.close();
+    }
 
     public static void mathextract(String filename) throws IOException, JDOMException, SAXException, ParserConfigurationException, InterruptedException {
 	        
@@ -317,13 +349,14 @@ public class Main {
 	        //Readfile
 	        read reader = new read(documnet);
 	        ArrayList<PageStructure> allPages = reader.readPdf();
-	
-	
+        	
+	        writeTransformationsToFile(filename, allPages);
+	        
 	        //DisplayPDF
 	        if (displayFlag) {
 	            DisplayPDF display = new DisplayPDF(allPages);
 	            display.displayPDF();
-	            System.out.println(display.builder.toString());
+	            //System.out.println(display.builder.toString());
 	
 	        }
 	        //Print flag
@@ -333,14 +366,16 @@ public class Main {
 	            String pageMetrics = "<Document>\n<runtime>"+timetaken+"</runtime>\n";
 	            pageMetrics+= "<pagemetrics>\n";
 	            for(int i=0;i<allPages.size();i++){
-	
-	                pageMetrics+="\t<page>\n";
-	                pageMetrics+="\t\t<no>"+i+"</no>\n";
-	                pageMetrics+="\t\t<lines>"+allPages.get(i).meta.linecount+"</lines>\n";
-	                pageMetrics+="\t\t<words>"+allPages.get(i).meta.wordcount+"</words>\n";
-	                pageMetrics+="\t\t<characters>"+allPages.get(i).meta.charactercount+"</characters>\n";
-	                pageMetrics+="\t</page>\n";
-	
+            		
+	            	System.out.println(allPages.get(i).xmin + ", " + allPages.get(i).ymax + ", " + allPages.get(i).xmax + ", " + allPages.get(i).ymin);
+	            	
+//	                pageMetrics+="\t<page>\n";
+//	                pageMetrics+="\t\t<no>"+i+"</no>\n";
+//	                pageMetrics+="\t\t<lines>"+allPages.get(i).meta.linecount+"</lines>\n";
+//	                pageMetrics+="\t\t<words>"+allPages.get(i).meta.wordcount+"</words>\n";
+//	                pageMetrics+="\t\t<characters>"+allPages.get(i).meta.charactercount+"</characters>\n";
+//	                pageMetrics+="\t</page>\n";
+//	
 	            }
 	            pageMetrics+="</pagemetrics>\n";
 	

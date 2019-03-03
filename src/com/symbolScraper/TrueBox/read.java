@@ -42,10 +42,10 @@ class read extends PDFTextStripper{
                 new HashMap<Integer, characterInfo>(),
                 new HashMap<Integer, compundCharacter>(),null);
         BoundingBox BBox = new BoundingBox(document,pagenum,page);
-        BBox.getGeometricInfo(pagenum);
-        metadata meta = new metadata(BBox.lineId,BBox.wordId,BBox.charId);
+        String transformation = BBox.getGeometricInfo(pagenum);
+        metadata meta = new metadata(BBox.lineId,BBox.wordId,BBox.charId, transformation);
         page.meta=meta;
-        System.out.println("PageNume::"+BBox.pageNum+" Lines::"+BBox.lineId+" Words::"+  BBox.wordId+" Characters::"+BBox.charId);
+        //System.out.println("PageNume::"+BBox.pageNum+" Lines::"+BBox.lineId+" Words::"+  BBox.wordId+" Characters::"+BBox.charId);
         return page;
     }
 
