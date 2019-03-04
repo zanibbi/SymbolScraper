@@ -44,7 +44,7 @@ public class Annotate {
 	
 	public void drawBoundingBoxForImage(
 		PDDocument document, String ouputFile, 
-		Annotations annotations, BufferedReader transformationsReader
+		Annotations annotations, BufferedReader transformationsReader, boolean useTransforms
 	) throws IOException {
 			
 		if(annotations == null || 
@@ -61,13 +61,15 @@ public class Annotate {
 		String line;
 		int count = 0;
 		
-		while((line = transformationsReader.readLine()) != null) {
-		    
-			String[] coords = line.split(",");
-			transformations[count][0] = Double.parseDouble(coords[0]);
-			transformations[count][1] = Double.parseDouble(coords[1]);
-		    
-		    count = count + 1;
+		if(useTransforms) {
+			while((line = transformationsReader.readLine()) != null) {
+			    
+				String[] coords = line.split(",");
+				transformations[count][0] = Double.parseDouble(coords[0]);
+				transformations[count][1] = Double.parseDouble(coords[1]);
+			    
+			    count = count + 1;
+			}
 		}
 		
 		PDFRenderer pdfRenderer = new PDFRenderer(document);
@@ -79,7 +81,6 @@ public class Annotate {
 				pdfRenderer.renderImageWithDPI(sheetCount, Constants.SCAN_DPI, ImageType.RGB);
 			
 			PDPage page = document.getPage(sheetCount);
-			
 			
 			//System.out.println(page.getBleedBox());
 			//System.out.println(page.getArtBox());
@@ -103,8 +104,6 @@ public class Annotate {
 //	        });
 			PDPage annotatedPage = null;
 	        	        			
-
-			
 	        double widthRatio = bufferedImage.getWidth() / page.getMediaBox().getWidth();
      		double heightRatio = bufferedImage.getHeight() / page.getMediaBox().getHeight(); 
     		
@@ -126,8 +125,8 @@ public class Annotate {
 			Graphics2D graphics = (Graphics2D) bufferedImage.getGraphics();
 			graphics.setStroke(new BasicStroke(Constants.STROKE_SIZE));
 			
-			annotateTextAreas(sheet.getTextAreas(), graphics, offsetX, offsetY);
-			annotateImageAreas(sheet.getImageAreas(), graphics, offsetX, offsetY);
+			annotateTextAreas(sheet.getTextAreas(), graphics, offsetX, offsetY, useTransforms);
+			//annotateImageAreas(sheet.getImageAreas(), graphics, offsetX, offsetY, useTransforms);
 			
 			PDImageXObject pdImageXObject = 
 					JPEGFactory.createFromImage(annotatedDoc, bufferedImage);
@@ -170,7 +169,7 @@ public class Annotate {
 	}
 
 	private void annotateTextAreas(
-		List<Text> textAreas, Graphics2D graphics, int offsetX, int offsetY) {
+		List<Text> textAreas, Graphics2D graphics, int offsetX, int offsetY, boolean useTransforms) {
 
 		if(textAreas == null) {
 			return;
@@ -179,7 +178,7 @@ public class Annotate {
 		for(Text text: textAreas) {
 			
 	        BoundingBox boundingBox = text.getBoundingBox();
-			annotateLines(text.getLines(), graphics, offsetX, offsetY);
+			annotateLines(text.getLines(), graphics, offsetX, offsetY, useTransforms);
 			
 			graphics.setColor(Constants.TRASPARENT_RED);
 
@@ -187,7 +186,7 @@ public class Annotate {
 		}
 	}
 
-	private void annotateLines(List<Line> lines, Graphics2D graphics, int offsetX, int offsetY) {
+	private void annotateLines(List<Line> lines, Graphics2D graphics, int offsetX, int offsetY, boolean useTransforms) {
 		
 		if(lines == null) {
 			return;
@@ -196,7 +195,7 @@ public class Annotate {
 		for(Line line: lines) {
 			
 	        BoundingBox boundingBox = line.getBoundingBox();
-			annotateCharacters(line.getCharacters(), graphics, boundingBox, offsetX, offsetY);
+			annotateCharacters(line.getCharacters(), graphics, boundingBox, offsetX, offsetY, useTransforms);
 			
 			graphics.setColor(Constants.TRASPARENT_BLUE);
 			//drawBoundingBox(graphics, boundingBox);
@@ -206,7 +205,7 @@ public class Annotate {
 
 	private void annotateCharacters(
 		List<CharData> characters, Graphics2D graphics, BoundingBox lineBB, 
-		int offsetX, int offsetY) {
+		int offsetX, int offsetY, boolean useTransforms) {
 		
 		if(characters == null) {
 			return;
@@ -223,7 +222,7 @@ public class Annotate {
 	        }
 	        
 	        fillBoundingBox(graphics, boundingBox);			
-	        drawBoundingBox(graphics, boundingBox, lineBB, offsetX, offsetY);
+	        drawBoundingBox(graphics, boundingBox, lineBB, offsetX, offsetY, useTransforms);
 		}
 	}
 
@@ -237,7 +236,12 @@ public class Annotate {
 //	
 	}
 	
-	private void drawBoundingBox(Graphics2D graphics, BoundingBox boundingBox, BoundingBox lineBB, int offsetX, int offsetY) {
+	private void drawBoundingBox(Graphics2D graphics, BoundingBox boundingBox, BoundingBox lineBB, int offsetX, int offsetY, boolean useTransforms) {
+		
+		if(!useTransforms) {
+			offsetX = 0;
+			offsetY = 0;
+		}
 		
 		graphics.drawRect(
 			boundingBox.getLeft().intValue() + offsetX, 
