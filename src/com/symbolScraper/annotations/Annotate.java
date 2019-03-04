@@ -109,8 +109,8 @@ public class Annotate {
     		
      		CharData firstChar = sheet.getTextAreas().get(0).getLines().get(0).getCharacters().get(0);
      		
-     		int offsetX = (int)(widthRatio * transformations[sheetCount][0] - firstChar.getBoundingBox().getLeft()); 
-    		int offsetY = (int)(heightRatio * (page.getMediaBox().getHeight() - transformations[sheetCount][1]) - firstChar.getBoundingBox().getBottom());
+     		int offsetX = (int)Math.round(widthRatio * transformations[sheetCount][0] - firstChar.getBoundingBox().getLeft()); 
+    		int offsetY = (int)Math.round(heightRatio * (page.getMediaBox().getHeight() - transformations[sheetCount][1]) - firstChar.getBoundingBox().getBottom());
 	        
     		System.out.println("Offsets:(x, y) --> " + offsetX + " , " + offsetY);
     		

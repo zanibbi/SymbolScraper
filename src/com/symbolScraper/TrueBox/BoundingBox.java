@@ -230,13 +230,13 @@ class BoundingBox extends PDFTextStripper {
             float startY = text.getTextMatrix().getTranslateY();
         	
             
-            if(first) {
-            	transformation = startX + "," + startY;
-            	System.out.println("--> X " + startX + " Y " + startY);
-            	//System.out.println("w,h --> " + text.getWidth() + " , " + text.getHeight());
-            	first = false;
-            }
-            
+//            if(first) {
+//            	transformation = startX + "," + startY;
+//            	System.out.println("--> X " + startX + " Y " + startY);
+//            	//System.out.println("w,h --> " + text.getWidth() + " , " + text.getHeight());
+//            	first = false;
+//            }
+//            
             currentPage.xmax = Math.max(startX, currentPage.xmax);
             currentPage.xmin = Math.min(startX, currentPage.xmin);
             currentPage.ymax = Math.max(startY, currentPage.ymax);

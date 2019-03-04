@@ -328,7 +328,8 @@ public class Main {
         
     	for(PageStructure pageStructure: allPages) {
         	
-    		writer.append(pageStructure.meta.getTransformation());
+    		//writer.append(pageStructure.meta.getTransformation());
+    		writer.append(pageStructure.xmin + "," + pageStructure.ymax);
     		writer.append("\n");
         }
     	

@@ -40,7 +40,7 @@ public class Test {
 		
 //		test(path, "Li75");
      	 
-//		 test(path, "Gidas79");
+//		test(path, "Gidas79");
 
 	}
 	
@@ -50,20 +50,20 @@ public class Test {
 		String path = "/Users/parag/Workspace/GTDB-Dataset/GTDB-1/";
 		
 		// done 
-		test(path, "BSMF_1970_165_192");
-		test(path, "AIF_1970_493_498");
-//		test(path, "ActaM_1970_37_63");
+//		test(path, "BSMF_1970_165_192");
+//		test(path, "AIF_1970_493_498");
+		test(path, "ActaM_1970_37_63");
 //		test(path, "Arkiv_1997_185_199");
-		test(path, "BSMF_1998_245_271");
+//		test(path, "BSMF_1998_245_271");
 //		test(path, "MA_1999_175_196");
-		test(path, "AIF_1999_375_404");
+//		test(path, "AIF_1999_375_404");
 //		test(path, "ActaM_1998_283_305");		
-		test(path, "InvM_1970_121_134");
-		test(path, "ASENS_1970_273_284");
-		test(path, "AnnM_1970_550_569");
+//		test(path, "InvM_1970_121_134");
+//		test(path, "ASENS_1970_273_284");
+//		test(path, "AnnM_1970_550_569");
 		
 //		test(path, "BAMS_1998_123_143");
-		test(path, "ASENS_1997_367_384");
+//		test(path, "ASENS_1997_367_384");
 //		test(path, "Arkiv_1971_141_163");
 		
 		// no .md file
@@ -132,8 +132,8 @@ public class Test {
 		//test("/Users/parag/Workspace/GTDB-Dataset/GTDB-1","ActaM_1998_283_305");
 		//test("/Users/parag/Workspace/GTDB-Dataset/GTDB-1","Arkiv_1971_141_163");
 
-		//testGTDB1();
-		testGTDB2();
+		testGTDB1();
+		//testGTDB2();
 
 //		AnnotationReader reader = new AnnotationReader();		
 //		Annotations annotations = reader.read("/Users/parag/Workspace/GTDB-Dataset/GTDB-2/Alford94.csv");
