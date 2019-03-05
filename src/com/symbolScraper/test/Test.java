@@ -28,21 +28,21 @@ public class Test {
 
 		// done
 		test(path, "Alford94");
-		test(path, "Borcherds86");
-		test(path, "Burstall77");
-		test(path, "Emden76");
-		test(path, "Lusztig89");
-		test(path, "Bergweiler83");
-		test(path, "Cline88");
-		test(path, "Katz99");
-		test(path, "Kontsevich94");
-		test(path, "Lorentz48");
-		test(path, "Brezis83");
-		test(path, "Erbe94");
-		test(path, "Kazhdan79");
-		test(path, "jones83");		
-		test(path, "Li75");
-		test(path, "Gidas79");
+//		test(path, "Borcherds86");
+//		test(path, "Burstall77");
+//		test(path, "Emden76");
+//		test(path, "Lusztig89");
+//		test(path, "Bergweiler83");
+//		test(path, "Cline88");
+//		test(path, "Katz99");
+//		test(path, "Kontsevich94");
+//		test(path, "Lorentz48");
+//		test(path, "Brezis83");
+//		test(path, "Erbe94");
+//		test(path, "Kazhdan79");
+//		test(path, "jones83");		
+//		test(path, "Li75");
+//		test(path, "Gidas79");
 
 	}
 	
@@ -106,7 +106,11 @@ public class Test {
 		Annotations annotations = reader.read(csvPath.toString());
 		Annotate visualizations = new Annotate();
 		
-		writeMathBBToFile(annotations, path, filename);
+		Path mathBBPath = Paths.get(path, filename + ".math");
+		BufferedWriter mathWriter = new BufferedWriter(new FileWriter(mathBBPath.toString()));
+		
+		
+		//writeMathBBToFile(annotations, path, filename);
 		
 		//Load File
 		File file = new File(pdfPath.toString());		
@@ -126,7 +130,7 @@ public class Test {
         String outputFile = outPath.toString(); 
 
         visualizations.drawBoundingBoxForImage(
-			document, outputFile, annotations, transformationsReader, useTransforms);
+			document, outputFile, annotations, transformationsReader, useTransforms, mathWriter);
 	}
 		
 	private static void writeMathBBToFile(Annotations annotations, String path, String filename) throws IOException {
@@ -153,7 +157,6 @@ public class Test {
 								  maths.get(j).getBoundingBox().getBottom() + "\n" );
 				}
 			}
-			
 		}
 		
 		writer.close();
@@ -164,7 +167,7 @@ public class Test {
 		//test("/Users/parag/Workspace/GTDB-Dataset/GTDB-1","ActaM_1998_283_305");
 		//test("/Users/parag/Workspace/GTDB-Dataset/GTDB-1","Arkiv_1971_141_163");
 
-		testGTDB1();
+		//testGTDB1();
 		testGTDB2();
 
 //		AnnotationReader reader = new AnnotationReader();		
@@ -173,10 +176,10 @@ public class Test {
 //		
 //		//Load File
 //		File file = new File("/Users/parag/Workspace/math_detection/GTDB-2 papers/Alford94.pdf");		
-//        FileInputStream inpStream = new FileInputStream(file);
-//        PDDocument document = PDDocument.load(inpStream);
+//      FileInputStream inpStream = new FileInputStream(file);
+//      PDDocument document = PDDocument.load(inpStream);
 //        
-//        String outputFile = "/Users/parag/Downloads/swiggy2.pdf"; 
+//      String outputFile = "/Users/parag/Downloads/swiggy2.pdf"; 
 //		visualizations.drawBoundingBoxForImage(document, outputFile, annotations);
 
 	}

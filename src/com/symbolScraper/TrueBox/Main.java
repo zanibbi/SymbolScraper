@@ -426,8 +426,6 @@ public class Main {
 	            }
 	            System.out.println();
 	            System.out.println("Output files generated....");
-	
-	
 	        }
 	
 	

@@ -16,9 +16,12 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -45,7 +48,8 @@ public class Annotate {
 	
 	public void drawBoundingBoxForImage(
 		PDDocument document, String ouputFile, 
-		Annotations annotations, BufferedReader transformationsReader, boolean useTransforms
+		Annotations annotations, BufferedReader transformationsReader, boolean useTransforms, 
+		BufferedWriter mathWriter
 	) throws IOException {
 			
 		if(annotations == null || 
@@ -129,7 +133,7 @@ public class Annotate {
 			
 			annotateTextAreas(sheet.getTextAreas(), graphics, offsetX, offsetY, useTransforms);
 			//annotateImageAreas(sheet.getImageAreas(), graphics, offsetX, offsetY, useTransforms);
-			annotateMathAreas(sheet.getMathAreas(), graphics, offsetX, offsetY, useTransforms);
+			annotateMathAreas(sheet.getMathAreas(), graphics, offsetX, offsetY, useTransforms, mathWriter, sheetCount);
 			
 			PDImageXObject pdImageXObject = 
 					JPEGFactory.createFromImage(annotatedDoc, bufferedImage);
@@ -137,8 +141,9 @@ public class Annotate {
 			PDPageContentStream contents = 
 					new PDPageContentStream(annotatedDoc, annotatedPage);
 			
-			//File outputfile = new File("/Users/parag/Documents/image.png");
-			//ImageIO.write(bufferedImage, "png", outputfile);
+//			File outputfile = new File("/Users/parag/Documents/test/image_" + sheetCount +" .png");
+//			ImageIO.write(bufferedImage, "png", outputfile);
+			
 			contents.drawImage(pdImageXObject, Constants.X_ORIGIN, Constants.Y_ORIGIN);
 			
 			contents.close();
@@ -153,18 +158,28 @@ public class Annotate {
 		File file = new File(ouputFile);
 		annotatedDoc.save(file);
 		annotatedDoc.close();
+		mathWriter.close();
 	}
 	
-	private void annotateMathAreas(List<MathData> mathAreas, Graphics2D graphics, int offsetX, int offsetY, boolean useTransforms) {
+	private void annotateMathAreas(List<MathData> mathAreas, Graphics2D graphics, int offsetX, 
+								   int offsetY, boolean useTransforms, BufferedWriter mathWriter, int sheetCount) 
+	   throws IOException {
 
 		if(mathAreas == null) {
 			return;
 		}
 
 		graphics.setColor(Constants.TRASPARENT_YELLOW);
-
+		
 		for(MathData math: mathAreas) {
 		        BoundingBox boundingBox = math.getBoundingBox();
+		        
+		        mathWriter.write( sheetCount + "," + 
+				  				  (math.getBoundingBox().getLeft() + offsetX) + "," +
+					  			  (math.getBoundingBox().getTop() + offsetY) + "," +
+					  			  (math.getBoundingBox().getRight() + offsetX) + "," +
+					  			  (math.getBoundingBox().getBottom() + offsetY) + "\n" );
+		        
 		        fillBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms);	
 		        drawBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms);
 		}
