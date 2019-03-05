@@ -158,7 +158,7 @@ public class AnnotationReader {
 
 		    			currentLine = handleLine(entries);
 		    			
-		    			if (mathStart && currentChar.getTextMode() == TextMode.ORDINARY_TEXT) {
+		    			if (mathStart) {
 	    					maths.add(currentMath);
 	    					mathStart = false;
 	    				}
@@ -199,6 +199,10 @@ public class AnnotationReader {
 				processLine(currentLine, lines, chars);
     			processText(currentText, lines, texts);
     			processImage(currentImage, images);
+				
+    			if(mathStart) {
+    				maths.add(currentMath);
+    			}
     			
     			currentSheet.setImageAreas(images);
     			currentSheet.setTextAreas(texts);
