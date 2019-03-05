@@ -23,6 +23,7 @@ import com.symbolScraper.annotations.data.Heading;
 import com.symbolScraper.annotations.data.Image;
 import com.symbolScraper.annotations.data.Line;
 import com.symbolScraper.annotations.data.LinkLabel;
+import com.symbolScraper.annotations.data.MathData;
 import com.symbolScraper.annotations.data.Sheet;
 import com.symbolScraper.annotations.data.Text;
 import com.symbolScraper.annotations.data.TextMode;
@@ -39,6 +40,7 @@ public class AnnotationReader {
 		List<Image> images = new ArrayList<>();
 		List<Line> lines = new ArrayList<>();
 		List<CharData> chars = new ArrayList<>();
+		List<MathData> maths = new ArrayList<>();
 		
 		int count = 0;
 		
@@ -60,6 +62,9 @@ public class AnnotationReader {
     		Image currentImage = null;
     		Line currentLine = null;
     		CharData currentChar = null;
+    		MathData currentMath = null;
+    		
+    		boolean mathStart = false;
 
 		    while ((line = br.readLine()) != null) {
 		    		
@@ -84,7 +89,17 @@ public class AnnotationReader {
 			    			
 			    			currentSheet.setImageAreas(images);
 			    			currentSheet.setTextAreas(texts);
-		    				
+			    			currentSheet.setMathAreas(maths);
+			    			
+			    			BoundingBox sheetBB = texts.get(0).getBoundingBox();
+			    			for (int i=1; i<texts.size(); i++) {
+			    				BoundingBox bbox = texts.get(i).getBoundingBox();
+			    				sheetBB.setLeft(Math.min(sheetBB.getLeft(),bbox.getLeft()));
+			    				sheetBB.setTop(Math.min(sheetBB.getTop(),bbox.getTop()));
+			    				sheetBB.setRight(Math.max(sheetBB.getRight(),bbox.getRight()));
+			    				sheetBB.setBottom(Math.max(sheetBB.getBottom(),bbox.getBottom()));
+			    			}
+		    				currentSheet.setBoundingBox(sheetBB);
 			    			sheets.add(currentSheet);
 			    			
 			    			chars = new ArrayList<>();
@@ -97,6 +112,7 @@ public class AnnotationReader {
 
 			    			texts = new ArrayList<>();
 			    			images = new ArrayList<>();
+			    			maths = new ArrayList<>();
 		    			}
 		    			
 		    			currentSheet = handleSheet(entries);
@@ -141,12 +157,37 @@ public class AnnotationReader {
 		    			currentLine = null;
 
 		    			currentLine = handleLine(entries);
+		    			
+		    			if (mathStart && currentChar.getTextMode() == TextMode.ORDINARY_TEXT) {
+	    					maths.add(currentMath);
+	    					mathStart = false;
+	    				}
+		    			
 		    			break;
 		    			
 	    			case "Chardata":
 	    				currentChar = handleCharData(entries);
 	    				chars.add(currentChar);
-	    				break;		    			
+	    				
+	    				if (currentChar.getTextMode() == TextMode.MATH_SYMBOL) {
+
+	    					if (!mathStart) {
+	    						mathStart = true;
+	    						currentMath = new MathData(currentChar.getBoundingBox());
+	    					} else {
+	    						float bottom = Math.max(currentMath.getBoundingBox().getBottom(), currentChar.getBoundingBox().getBottom());
+	    						float left = Math.min(currentMath.getBoundingBox().getLeft(), currentChar.getBoundingBox().getLeft());
+	    						float top = Math.min(currentMath.getBoundingBox().getTop(), currentChar.getBoundingBox().getTop());
+	    						float right = Math.max(currentMath.getBoundingBox().getRight(), currentChar.getBoundingBox().getRight());
+	    						currentMath = new MathData(new BoundingBox(left, top, right, bottom));
+	    					}
+	    				}
+	    				if (mathStart && currentChar.getTextMode() == TextMode.ORDINARY_TEXT) {
+	    					maths.add(currentMath);
+	    					mathStart = false;
+	    				}
+
+    				    break;		    			
 	    			
 	    			default:
 	    				System.out.println("This type of annotation is not supported!");
@@ -161,6 +202,17 @@ public class AnnotationReader {
     			
     			currentSheet.setImageAreas(images);
     			currentSheet.setTextAreas(texts);
+    			currentSheet.setMathAreas(maths);
+    			
+    			BoundingBox sheetBB = texts.get(0).getBoundingBox();
+    			for (int i=1; i<texts.size(); i++) {
+    				BoundingBox bbox = texts.get(i).getBoundingBox();
+    				sheetBB.setLeft(Math.min(sheetBB.getLeft(),bbox.getLeft()));
+    				sheetBB.setTop(Math.min(sheetBB.getTop(),bbox.getTop()));
+    				sheetBB.setRight(Math.max(sheetBB.getRight(),bbox.getRight()));
+    				sheetBB.setBottom(Math.max(sheetBB.getBottom(),bbox.getBottom()));
+    			}
+				currentSheet.setBoundingBox(sheetBB);
     			
     			sheets.add(currentSheet);
 			}
@@ -193,11 +245,12 @@ public class AnnotationReader {
 	}
 	
 	private void processText(Text currentText, 
-							List<Line> lines, List<Text> texts) {
+							 List<Line> lines, List<Text> texts) {
 		
 		if(currentText != null) {
 			
 			currentText.setLines(lines);
+			currentText.getBoundingBox();
 			texts.add(currentText);
 		}
 		
@@ -328,7 +381,7 @@ public class AnnotationReader {
 	 */
 	private Sheet handleSheet(String[] entries) {
 		
-		return new Sheet(Long.parseLong(entries[1]), entries[2], null/*textAreas*/, null/*imageAreas*/);
+		return new Sheet(Long.parseLong(entries[1]), entries[2], null, null/*textAreas*/, null/*imageAreas*/, null/*mathAreas*/);
 	}
 	
 //	private void processSheet(Sheet currentSheet, Text currentText, Image currentImage, Line currentLine, 

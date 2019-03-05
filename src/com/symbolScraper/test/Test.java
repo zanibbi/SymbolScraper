@@ -1,19 +1,24 @@
 package com.symbolScraper.test;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import com.symbolScraper.annotations.Annotate;
 import com.symbolScraper.annotations.AnnotationReader;
 import com.symbolScraper.annotations.data.Annotations;
+import com.symbolScraper.annotations.data.MathData;
+import com.symbolScraper.annotations.data.Sheet;
 
 public class Test {
 
@@ -52,25 +57,24 @@ public class Test {
 		// done 
 //		test(path, "BSMF_1970_165_192");
 //		test(path, "AIF_1970_493_498");
-		test(path, "ActaM_1970_37_63");
+//		test(path, "ActaM_1970_37_63");
 //		test(path, "Arkiv_1997_185_199");
 //		test(path, "BSMF_1998_245_271");
 //		test(path, "MA_1999_175_196");
 //		test(path, "AIF_1999_375_404");
 //		test(path, "ActaM_1998_283_305");		
-//		test(path, "InvM_1970_121_134");
+		test(path, "InvM_1970_121_134");
 //		test(path, "ASENS_1970_273_284");
-//		test(path, "AnnM_1970_550_569");
-		
+//		test(path, "AnnM_1970_550_569");		
 //		test(path, "BAMS_1998_123_143");
 //		test(path, "ASENS_1997_367_384");
 //		test(path, "Arkiv_1971_141_163");
-		
+//		
 		// no .md file
-		// test(path, "InvM_1999_163_181"); 
+//		test(path, "InvM_1999_163_181"); 
 		
 		// empty .md file
-		//test(path, "KJM_1999_17_36");
+//		test(path, "KJM_1999_17_36");
 				
 		// were not present - because of the mixed .csv annotations
 		// split the .csv files to make sure it works
@@ -87,11 +91,12 @@ public class Test {
 //		test(path, "JMS_1975_497_506");
 //		
 		// no .md file
-		//test(path, "TMJ_1973_317_331");
-		//test(path, "TMJ_1973_333_338");
-		//test(path, "TMJ_1990_163_193");
+//		test(path, "TMJ_1973_317_331");
+//		test(path, "TMJ_1973_333_338");
+//		test(path, "TMJ_1990_163_193");
 				
 	}
+	
 	
 	public static void test(String path, String filename) throws FileNotFoundException, IOException {
 
@@ -104,6 +109,8 @@ public class Test {
 		Annotations annotations = reader.read(csvPath.toString());
 		Annotate visualizations = new Annotate();
 		
+		writeMathBBToFile(annotations, path, filename);
+		
 		//Load File
 		File file = new File(pdfPath.toString());		
         FileInputStream inpStream = new FileInputStream(file);
@@ -115,18 +122,42 @@ public class Test {
         
         try {
         	transformationsReader = new BufferedReader(new FileReader(transformationsPath.toString())); 
-
         } catch(IOException e) {
         	useTransforms = false;
         }
         
         String outputFile = outPath.toString(); 
-        
 
-		visualizations.drawBoundingBoxForImage(
+        visualizations.drawBoundingBoxForImage(
 			document, outputFile, annotations, transformationsReader, useTransforms);
 	}
 		
+	private static void writeMathBBToFile(Annotations annotations, String path, String filename) throws IOException {
+		// TODO Auto-generated method stub
+		
+		Path mathBBPath = Paths.get(path, filename + ".math");
+		BufferedWriter writer = new BufferedWriter(new FileWriter(mathBBPath.toString()));
+		
+		List<Sheet> sheets = annotations.getSheets();
+		
+		for(int i=0; i<sheets.size(); i++) {
+			
+			Sheet sheet = sheets.get(i);
+			
+			List<MathData> maths = sheet.getMathAreas();
+			
+			if(maths != null) {
+				for(int j=0; j<maths.size(); j++) {
+					
+					writer.write(maths.get(i).getBoundingBox().toString());
+				}
+			}
+			
+		}
+		
+	}
+
+
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		
 		//test("/Users/parag/Workspace/GTDB-Dataset/GTDB-1","ActaM_1998_283_305");

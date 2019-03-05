@@ -8,12 +8,12 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Getter
-@Setter(AccessLevel.PUBLIC)
+@Setter(AccessLevel.PRIVATE)
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class BoundingBox {
-	
-	Float left, top, right, bottom;
+public class MathData {
+
+	BoundingBox boundingBox;
 }

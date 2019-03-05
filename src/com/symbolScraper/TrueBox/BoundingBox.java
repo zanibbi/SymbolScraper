@@ -239,8 +239,8 @@ class BoundingBox extends PDFTextStripper {
 //            
             currentPage.xmax = Math.max(startX, currentPage.xmax);
             currentPage.xmin = Math.min(startX, currentPage.xmin);
-            currentPage.ymax = Math.max(startY, currentPage.ymax);
-            currentPage.ymin = Math.min(startY, currentPage.ymin);
+            currentPage.ymax = Math.max(startY + text.getHeight(), currentPage.ymax);
+            currentPage.ymin = Math.min(startY + text.getHeight(), currentPage.ymin);
             
             float fontSize = text.getFontSize();
 

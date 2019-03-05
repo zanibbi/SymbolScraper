@@ -23,9 +23,14 @@ public class Sheet {
 	String fileName;
 	
 	@Setter(AccessLevel.PUBLIC)
+	BoundingBox boundingBox;
+	
+	@Setter(AccessLevel.PUBLIC)
 	List<Text> textAreas;
 	
 	@Setter(AccessLevel.PUBLIC)
 	List<Image> imageAreas;
 	
+	@Setter(AccessLevel.PUBLIC)
+	List<MathData> mathAreas;
 }
