@@ -23,50 +23,34 @@ public class Convert {
 		
 		String path = "/Users/parag/Workspace/GTDB-Dataset/GTDB-2/";
 		
-		Consumer<Path> generateImages = new Consumer<Path>() {
+		File dir = new File(path);
+		File[] directoryListing = dir.listFiles();
+
+		if (directoryListing != null) {
 			
-			@Override
-			public void accept(Path t) {
-				
+			for (File t : directoryListing) {
+
 				if(!t.toString().endsWith(".pdf")) {
 					return;
 				}
 				
-				try {
-					System.out.println(t);
-					PDDocument document = PDDocument.load(new File(t.toString()));
-					PDFRenderer pdfRenderer = new PDFRenderer(document);
-					
-					String basename = FilenameUtils.getBaseName(t.toString());
-					
-					Path destDir = Paths.get(path, "images", basename);
-					new File(destDir.toString()).mkdirs();
+				System.out.println(t);
+				PDDocument document = PDDocument.load(new File(t.toString()));
+				PDFRenderer pdfRenderer = new PDFRenderer(document);
+				
+				String basename = FilenameUtils.getBaseName(t.toString());
+				
+				Path destDir = Paths.get(path, "images", basename);
+				new File(destDir.toString()).mkdirs();
 
-			    	for (int page = 0; page < document.getNumberOfPages(); ++page)
-					{ 
-					    BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 600, ImageType.RGB);
-						
-					    File outputfile = new File(Paths.get(destDir.toString(), basename + "_" + (page+1)  + ".png").toString());
-						ImageIO.write(bim, "png", outputfile);
-						
-					    // suffix in filename will be used as the file format
-					    // ImageIOUtil.writeImage(bim, "png", destFile, );
-					}
-										
-				}catch (Exception e) {
-					// TODO: handle exception
-					System.out.println("Exception " + e);
+		    	for (int page = 0; page < document.getNumberOfPages(); ++page)
+				{ 
+				    BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 600, ImageType.RGB);
+					
+				    File outputfile = new File(Paths.get(destDir.toString(), basename + "_" + (page+1)  + ".png").toString());
+					ImageIO.write(bim, "png", outputfile);
 				}
-				
 			}
-		}; 
-				
-		try (Stream<Path> paths = Files.walk(Paths.get(path))) {
-		    
- 		    paths
-		        .filter(Files::isRegularFile)
-		        .forEach(generateImages);
-		} 
-				
+		}		
 	}
 }
