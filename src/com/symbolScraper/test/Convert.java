@@ -26,6 +26,8 @@ public class Convert {
 		File dir = new File(path);
 		File[] directoryListing = dir.listFiles();
 
+		System.out.println("Number of documents " + directoryListing.length);
+		
 		if (directoryListing != null) {
 			
 			for (File t : directoryListing) {
@@ -41,8 +43,9 @@ public class Convert {
 				String basename = FilenameUtils.getBaseName(t.toString());
 				
 				Path destDir = Paths.get(path, "images", basename);
-				new File(destDir.toString()).mkdirs();
-
+				File k = new File(destDir.toString());
+				k.mkdirs();
+				
 		    	for (int page = 0; page < document.getNumberOfPages(); ++page)
 				{ 
 				    BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 600, ImageType.RGB);
@@ -50,6 +53,7 @@ public class Convert {
 				    File outputfile = new File(Paths.get(destDir.toString(), basename + "_" + (page+1)  + ".png").toString());
 					ImageIO.write(bim, "png", outputfile);
 				}
+		    	
 			}
 		}		
 	}

@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -70,7 +71,7 @@ public class AnnotationReader {
 		    		
 	    		count = count + 1;
 	    		
-	    		if(count % 100 == 0) {
+	    		if(count % 5000 == 0) {
 	    			System.out.println("Processing line " + count);
 	    		}
 	    	
@@ -90,6 +91,7 @@ public class AnnotationReader {
 			    			currentSheet.setImageAreas(images);
 			    			currentSheet.setTextAreas(texts);
 			    			currentSheet.setMathAreas(maths);
+			    			mathStart = false;
 			    			
 			    			BoundingBox sheetBB = texts.get(0).getBoundingBox();
 			    			for (int i=1; i<texts.size(); i++) {
@@ -99,6 +101,15 @@ public class AnnotationReader {
 			    				sheetBB.setRight(Math.max(sheetBB.getRight(),bbox.getRight()));
 			    				sheetBB.setBottom(Math.max(sheetBB.getBottom(),bbox.getBottom()));
 			    			}
+			    			
+			    			for (int i=0; i<images.size(); i++) {
+			    				BoundingBox bbox = images.get(i).getBoundingBox();
+			    				sheetBB.setLeft(Math.min(sheetBB.getLeft(),bbox.getLeft()));
+			    				sheetBB.setTop(Math.min(sheetBB.getTop(),bbox.getTop()));
+			    				sheetBB.setRight(Math.max(sheetBB.getRight(),bbox.getRight()));
+			    				sheetBB.setBottom(Math.max(sheetBB.getBottom(),bbox.getBottom()));
+			    			}
+			    			
 		    				currentSheet.setBoundingBox(sheetBB);
 			    			sheets.add(currentSheet);
 			    			
@@ -133,6 +144,11 @@ public class AnnotationReader {
 		    			currentLine = null;
 
 		    			currentText = handleText(entries);
+		    			
+		    			if (mathStart) {
+	    					maths.add(currentMath);
+	    					mathStart = false;
+	    				}
 		    			break;
 		    			
 		    		case "Image":
@@ -148,6 +164,11 @@ public class AnnotationReader {
 		    			currentLine = null;
 
 		    			currentImage = handleImage(entries);
+		    			
+		    			if (mathStart) {
+	    					maths.add(currentMath);
+	    					mathStart = false;
+	    				}
 		    			break;
 		    			
 		    		case "Line":
@@ -181,7 +202,9 @@ public class AnnotationReader {
 	    						float right = Math.max(currentMath.getBoundingBox().getRight(), currentChar.getBoundingBox().getRight());
 	    						currentMath = new MathData(new BoundingBox(left, top, right, bottom));
 	    					}
+	    					
 	    				}
+	    				
 	    				if (mathStart && currentChar.getTextMode() == TextMode.ORDINARY_TEXT) {
 	    					maths.add(currentMath);
 	    					mathStart = false;
@@ -190,7 +213,7 @@ public class AnnotationReader {
     				    break;		    			
 	    			
 	    			default:
-	    				System.out.println("This type of annotation is not supported!");
+	    				//System.out.println("This type of annotation is not supported!");
 	    		}
 		    }
 		    
@@ -320,7 +343,7 @@ public class AnnotationReader {
 				linkLabel = LinkLabel.NONE;
 				break;
 			default:
-				System.out.println("This type of link label is not supported!");
+				//System.out.println("This type of link label is not supported!");
 		}
 		
 		

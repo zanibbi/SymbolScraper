@@ -21,8 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import javax.imageio.ImageIO;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -62,7 +60,7 @@ public class Annotate {
 		
 		int sheetCount = 0;
 		
-		double[][] transformations = new double[document.getPages().getCount()][2];
+		double[][] transformations = new double[document.getPages().getCount()][4];
 		String line;
 		int count = 0;
 		
@@ -72,7 +70,9 @@ public class Annotate {
 				String[] coords = line.split(",");
 				transformations[count][0] = Double.parseDouble(coords[0]);
 				transformations[count][1] = Double.parseDouble(coords[1]);
-			    
+				transformations[count][2] = Double.parseDouble(coords[2]);
+				transformations[count][3] = Double.parseDouble(coords[3]);
+
 			    count = count + 1;
 			}
 		}
@@ -87,39 +87,31 @@ public class Annotate {
 			
 			PDPage page = document.getPage(sheetCount);
 			
-			//System.out.println(page.getBleedBox());
-			//System.out.println(page.getArtBox());
-			//System.out.println(page.getCropBox());
-			System.out.println(page.getMediaBox());
+			System.out.println("Page id: " + sheetCount + " mediabox: " + page.getMediaBox());
 
-			//BufferedImage bufferedImage = ImageIO.read(new File("/Users/parag/Downloads/GTDB-2_images/Alford94/1.png"));
-			
-//			Icon icon = new ImageIcon(bufferedImage);
-//	        JLabel label = new JLabel(icon);
-//
-//	        final JFrame f = new JFrame("ImageIconExample");
-//	        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//	        f.getContentPane().add(label);
-//	        f.pack();
-//	        SwingUtilities.invokeLater(new Runnable(){
-//	            public void run() {
-//	                f.setLocationRelativeTo(null);
-//	                f.setVisible(true);
-//	            }
-//	        });
 			PDPage annotatedPage = null;
 	        	        			
 	        double widthRatio = bufferedImage.getWidth() / page.getMediaBox().getWidth();
      		double heightRatio = bufferedImage.getHeight() / page.getMediaBox().getHeight(); 
     		
-     		CharData firstChar = sheet.getTextAreas().get(0).getLines().get(0).getCharacters().get(0);
+     		double sx =  (transformations[sheetCount][2]-transformations[sheetCount][0]) / (sheet.getBoundingBox().getRight() - sheet.getBoundingBox().getLeft());
+			double sy =  (transformations[sheetCount][3]-transformations[sheetCount][1]) / (sheet.getBoundingBox().getBottom() - sheet.getBoundingBox().getTop());
      		
-     		int offsetX = (int) Math.round((widthRatio * transformations[sheetCount][0] - sheet.getBoundingBox().getLeft())); 
-     	    int offsetY = (int) Math.round((heightRatio * (page.getMediaBox().getHeight() - transformations[sheetCount][1])) -
-     	    sheet.getBoundingBox().getTop());
+     		//TODO: change to double
+//     		int offsetX = (int) Math.round((widthRatio * transformations[sheetCount][0] - sheet.getBoundingBox().getLeft())); 
+//     	    int offsetY = (int) Math.round((heightRatio * (page.getMediaBox().getHeight() - transformations[sheetCount][1])) -
+//     	    sheet.getBoundingBox().getTop());
+//     	    
+     	   double offsetX = transformations[sheetCount][0] - sheet.getBoundingBox().getLeft(); 
+     	   double offsetY = transformations[sheetCount][1] - sheet.getBoundingBox().getTop();
+    	    
+     	   if(!useTransforms) {
+	   			offsetX = 0;
+	   			offsetY = 0;
+	   		}
+	   		
+ 	    	System.out.println("Offsets:(x, y) --> " + offsetX + " , " + offsetY);
      	    
-    		System.out.println("Offsets:(x, y) --> " + offsetX + " , " + offsetY);
-    		
 	        PDRectangle mediaBox = 
 					new PDRectangle(bufferedImage.getMinX(), 
           					        bufferedImage.getMinY(),
@@ -131,9 +123,9 @@ public class Annotate {
 			Graphics2D graphics = (Graphics2D) bufferedImage.getGraphics();
 			graphics.setStroke(new BasicStroke(Constants.STROKE_SIZE));
 			
-			annotateTextAreas(sheet.getTextAreas(), graphics, offsetX, offsetY, useTransforms);
-			//annotateImageAreas(sheet.getImageAreas(), graphics, offsetX, offsetY, useTransforms);
-			annotateMathAreas(sheet.getMathAreas(), graphics, offsetX, offsetY, useTransforms, mathWriter, sheetCount);
+			annotateTextAreas(sheet.getTextAreas(), graphics, offsetX, offsetY, useTransforms, sx, sy);
+			annotateImageAreas(sheet.getImageAreas(), graphics, offsetX, offsetY, useTransforms, sx, sy);
+			annotateMathAreas(sheet.getMathAreas(), graphics, offsetX, offsetY, useTransforms, mathWriter, sheetCount, sx, sy);
 			
 			PDImageXObject pdImageXObject = 
 					JPEGFactory.createFromImage(annotatedDoc, bufferedImage);
@@ -161,8 +153,9 @@ public class Annotate {
 		mathWriter.close();
 	}
 	
-	private void annotateMathAreas(List<MathData> mathAreas, Graphics2D graphics, int offsetX, 
-								   int offsetY, boolean useTransforms, BufferedWriter mathWriter, int sheetCount) 
+	private void annotateMathAreas(List<MathData> mathAreas, Graphics2D graphics, double offsetX, 
+								   double offsetY, boolean useTransforms, BufferedWriter mathWriter, int sheetCount,
+								   double widthRatio, double heightRatio) 
 	   throws IOException {
 
 		if(mathAreas == null) {
@@ -172,21 +165,26 @@ public class Annotate {
 		graphics.setColor(Constants.TRASPARENT_YELLOW);
 		
 		for(MathData math: mathAreas) {
-		        BoundingBox boundingBox = math.getBoundingBox();
 		        
-		        mathWriter.write( sheetCount + "," + 
-				  				  (math.getBoundingBox().getLeft() + offsetX) + "," +
-					  			  (math.getBoundingBox().getTop() + offsetY) + "," +
-					  			  (math.getBoundingBox().getRight() + offsetX) + "," +
-					  			  (math.getBoundingBox().getBottom() + offsetY) + "\n" );
-		        
-		        fillBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms);	
-		        drawBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms);
+			BoundingBox boundingBox = math.getBoundingBox();
+			
+			// left, top, right, bottom
+
+			mathWriter.write( sheetCount + "," + 
+					(int)Math.round(widthRatio * boundingBox.getLeft() + offsetX) + "," +
+					(int)Math.round(heightRatio * boundingBox.getTop() + offsetY) + "," +
+					(int)Math.round(widthRatio * boundingBox.getRight() + offsetX) + "," +
+					(int)Math.round(heightRatio * boundingBox.getBottom() + offsetY) + "\n" );
+
+			fillBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms, widthRatio, heightRatio);	
+			drawBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms, widthRatio, heightRatio);
 		}
 	}
 	
 	private void annotateImageAreas(
-		List<Image> imageAreas, Graphics2D graphics, int offsetX, int offsetY) {
+		List<Image> imageAreas, Graphics2D graphics, double offsetX, 
+		double offsetY, boolean useTransforms,
+		double widthRatio, double heightRatio) {
 		
 		if(imageAreas == null) {
 			return;
@@ -197,12 +195,13 @@ public class Annotate {
 		for(Image image: imageAreas) {
 			
 	        BoundingBox boundingBox = image.getBoundingBox();
-			//drawBoundingBox(graphics, boundingBox);
+	        drawBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms, widthRatio, heightRatio);
 		}
 	}
 
 	private void annotateTextAreas(
-		List<Text> textAreas, Graphics2D graphics, int offsetX, int offsetY, boolean useTransforms) {
+		List<Text> textAreas, Graphics2D graphics, double offsetX, double offsetY, 
+		boolean useTransforms, double widthRatio, double heightRatio) {
 
 		if(textAreas == null) {
 			return;
@@ -211,15 +210,16 @@ public class Annotate {
 		for(Text text: textAreas) {
 			
 	        BoundingBox boundingBox = text.getBoundingBox();
-			annotateLines(text.getLines(), graphics, offsetX, offsetY, useTransforms);
+			annotateLines(text.getLines(), graphics, offsetX, offsetY, useTransforms, widthRatio, heightRatio);
 			
 			graphics.setColor(Constants.TRASPARENT_RED);
 
-			//drawBoundingBox(graphics, boundingBox);
+	        drawBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms, widthRatio, heightRatio);
 		}
 	}
 
-	private void annotateLines(List<Line> lines, Graphics2D graphics, int offsetX, int offsetY, boolean useTransforms) {
+	private void annotateLines(List<Line> lines, Graphics2D graphics, double offsetX, double offsetY, 
+							   boolean useTransforms, double widthRatio, double heightRatio) {
 		
 		if(lines == null) {
 			return;
@@ -228,17 +228,17 @@ public class Annotate {
 		for(Line line: lines) {
 			
 	        BoundingBox boundingBox = line.getBoundingBox();
-			annotateCharacters(line.getCharacters(), graphics, offsetX, offsetY, useTransforms);
+			annotateCharacters(line.getCharacters(), graphics, offsetX, offsetY, useTransforms, widthRatio, heightRatio);
 			
 			graphics.setColor(Constants.TRASPARENT_BLUE);
-			//drawBoundingBox(graphics, boundingBox);
+	        drawBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms, widthRatio, heightRatio);
 		}
 		
 	}
 
 	private void annotateCharacters(
 		List<CharData> characters, Graphics2D graphics, 
-		int offsetX, int offsetY, boolean useTransforms) {
+		double offsetX, double offsetY, boolean useTransforms, double widthRatio, double heightRatio) {
 		
 		if(characters == null) {
 			return;
@@ -254,12 +254,13 @@ public class Annotate {
         		graphics.setColor(Constants.TRASPARENT_GREEN);
 	        }
 	        
-	        fillBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms);			
-	        drawBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms);
+	        fillBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms, widthRatio, heightRatio);			
+	        drawBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms, offsetY, offsetY);
 		}
 	}
 
-	private void fillBoundingBox(Graphics2D graphics, BoundingBox boundingBox, int offsetX, int offsetY, boolean useTransforms) {
+	private void fillBoundingBox(Graphics2D graphics, BoundingBox boundingBox, double offsetX, 
+								 double offsetY, boolean useTransforms, double widthRatio, double heightRatio) {
 		
 		if(!useTransforms) {
 			offsetX = 0;
@@ -267,14 +268,16 @@ public class Annotate {
 		}
 		
 		graphics.fillRect(
-			boundingBox.getLeft().intValue() + offsetX, 
-			boundingBox.getTop().intValue() + offsetY,
-			boundingBox.getRight().intValue() - boundingBox.getLeft().intValue(),
-			boundingBox.getBottom().intValue() - boundingBox.getTop().intValue());
+				(int)Math.round(widthRatio * boundingBox.getLeft() + offsetX), 
+				(int)Math.round(heightRatio * boundingBox.getTop() + offsetY),
+				(int)Math.round(widthRatio * (boundingBox.getRight() - boundingBox.getLeft())),
+				(int)Math.round(heightRatio * (boundingBox.getBottom() - boundingBox.getTop())));
 	
 	}
 	
-	private void drawBoundingBox(Graphics2D graphics, BoundingBox boundingBox, int offsetX, int offsetY, boolean useTransforms) {
+	private void drawBoundingBox(
+		Graphics2D graphics, BoundingBox boundingBox, double offsetX, double offsetY,
+	    boolean useTransforms, double widthRatio, double heightRatio) {
 		
 		if(!useTransforms) {
 			offsetX = 0;
@@ -282,68 +285,11 @@ public class Annotate {
 		}
 		
 		graphics.drawRect(
-			boundingBox.getLeft().intValue() + offsetX, 
-			boundingBox.getTop().intValue() + offsetY,
-			boundingBox.getRight().intValue() - boundingBox.getLeft().intValue(),
-			boundingBox.getBottom().intValue() - boundingBox.getTop().intValue());
+			(int)Math.round(widthRatio * boundingBox.getLeft() + offsetX), 
+			(int)Math.round(heightRatio * boundingBox.getTop() + offsetY),
+			(int)Math.round(widthRatio * (boundingBox.getRight() - boundingBox.getLeft())),
+			(int)Math.round(heightRatio * (boundingBox.getBottom() - boundingBox.getTop())));
 	
 	}
-
-//	public void drawBoundingBox(PDDocument document, Annotations annotations) 
-//	throws IOException {
-//	
-//	if(annotations == null || annotations.getSheets() == null || annotations.getSheets().size() < 1) {
-//		System.out.println("No annotations found!");
-//		return;
-//	}
-//	
-//	PDDocument editedDoc = new PDDocument();
-//	
-//	int sheetCount = 0;
-//	
-//	PDPageContentStream[] pageContentStreams = 
-//			new PDPageContentStream[annotations.getSheets().size()];
-//	
-//	for(Sheet sheet: annotations.getSheets()) {
-//
-//		List<Text> textAreas = sheet.getTextAreas();
-//		
-//		for(Text text: textAreas) {
-//
-//			PDPage page = document.getPage(sheetCount);
-//	        editedDoc.addPage(page);
-//	        
-//		        PDRectangle box = page.getBBox();
-//	        
-//	        System.out.println(box);
-//	        pageContentStreams[sheetCount] = 
-//	        		new PDPageContentStream(
-//        				editedDoc, page, 
-//        				PDPageContentStream.AppendMode.APPEND, true
-//    				);
-//	        
-//	        BoundingBox boundingBox = text.getBoundingBox();
-//	        
-//	        pageContentStreams[sheetCount].addRect(
-//	        		boundingBox.getLeft()/10, 
-//	        		boundingBox.getBottom()/10, 
-//	        		(boundingBox.getRight() - boundingBox.getLeft())/10,
-//	        		(boundingBox.getBottom() - boundingBox.getTop())/10);
-//
-//	        pageContentStreams[sheetCount].setLineWidth((float)1);
-//            pageContentStreams[sheetCount].setStrokingColor(Color.PINK);
-//            pageContentStreams[sheetCount].stroke();
-//            pageContentStreams[sheetCount].close();
-//		}
-//		sheetCount = sheetCount + 1;
-//		//TODO
-//		break;
-//	}
-//	
-//	File file = new File(ouputFile);
-//	document.save(file);
-//	document.close();
-//}
-	
 	
 }

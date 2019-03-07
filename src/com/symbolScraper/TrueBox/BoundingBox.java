@@ -129,7 +129,6 @@ class BoundingBox extends PDFTextStripper {
                 prevLine.baseLine = new baseLine(lineStartX,lineStartY,prevBaseLineX,prevBaseLineY);
                 WordList =  new ArrayList<Words>();
                 currentPage.Lines.add(new Line(lineId,null,WordList));
-
             }
 
             lineId+=1;
@@ -186,8 +185,6 @@ class BoundingBox extends PDFTextStripper {
     {
         super.processTextPosition(text);
 
-
-
         PDColor strokingColor = getGraphicsState().getStrokingColor();
         PDColor nonStrokingColor = getGraphicsState().getNonStrokingColor();
         String unicode = text.getUnicode();
@@ -203,13 +200,6 @@ class BoundingBox extends PDFTextStripper {
 
         // See the PrintTextLocations for more attributes
     }
-
-
-
-
-
-
-
 
     public String getBoundingBox() throws IOException {
         HashMap<Integer, characterInfo> charList = currentPage.pageCharacters;
@@ -252,7 +242,6 @@ class BoundingBox extends PDFTextStripper {
 
                 glyph = new drawGlyph(TTFfont.getPath(text.getCharacterCodes()[0]),
                         text.getCharacterCodes()[0], text.getUnicode(), fontSize,2048);
-
 
             }
             else if (font instanceof PDType1Font) {
