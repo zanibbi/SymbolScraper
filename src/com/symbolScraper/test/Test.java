@@ -52,49 +52,36 @@ public class Test {
 		String path = "/Users/parag/Workspace/GTDB-Dataset/GTDB-1/";
 		
 		// done 
-//		test(path, "MA_1970_26_38");
-//		test(path, "MA_1977_275_292");
-
-//		test(path, "BSMF_1970_165_192");
-//		test(path, "AIF_1970_493_498");
-//		test(path, "ActaM_1970_37_63");
-//		test(path, "Arkiv_1997_185_199");
-//		test(path, "BSMF_1998_245_271");
-//		test(path, "MA_1999_175_196");
-//		test(path, "AIF_1999_375_404");
-//		test(path, "ActaM_1998_283_305");		
-//		test(path, "InvM_1970_121_134");
-//		test(path, "ASENS_1970_273_284");
+		test(path, "MA_1970_26_38");
+		test(path, "MA_1977_275_292");
+		test(path, "BSMF_1970_165_192");
+		test(path, "AIF_1970_493_498");
+		test(path, "ActaM_1970_37_63");
+		test(path, "Arkiv_1997_185_199");
+		test(path, "BSMF_1998_245_271");
+		test(path, "MA_1999_175_196");
+		test(path, "AIF_1999_375_404");
+		test(path, "ActaM_1998_283_305");		
+		test(path, "InvM_1970_121_134");
+		test(path, "ASENS_1970_273_284");
 		test(path, "AnnM_1970_550_569");		
-//		test(path, "BAMS_1998_123_143");
-//		test(path, "ASENS_1997_367_384");
-//		test(path, "Arkiv_1971_141_163");
-//		
-		// no .md file
-//		test(path, "InvM_1999_163_181"); 
-		
-		// empty .md file
-//		test(path, "KJM_1999_17_36");
-				
-		// were not present - because of the mixed .csv annotations
-		// split the .csv files to make sure it works
-//		test(path, "JMKU_1971_373_375");
-//		test(path, "JMKU_1971_377_379");
-//		test(path, "JMKU_1971_181_194");
-//
-
-//		test(path, "BAMS_1971_1974_1");
-//		test(path, "BAMS_1971_1974_2");
-//		test(path, "BAMS_1971_1974_3");
-		
-//		test(path, "JMS_1975_281_288");
-//		test(path, "JMS_1975_289_293");
-//		test(path, "JMS_1975_497_506");
-//		
-		// no .md file
-//		test(path, "TMJ_1973_317_331");
-//		test(path, "TMJ_1973_333_338");
-//		test(path, "TMJ_1990_163_193");
+		test(path, "BAMS_1998_123_143");
+		test(path, "ASENS_1997_367_384");
+		test(path, "Arkiv_1971_141_163");		
+		test(path, "InvM_1999_163_181"); 
+		test(path, "KJM_1999_17_36");
+		test(path, "JMKU_1971_373_375");
+		test(path, "JMKU_1971_377_379");
+		test(path, "JMKU_1971_181_194");
+		test(path, "BAMS_1971_1974_1");
+		test(path, "BAMS_1971_1974_2");
+		test(path, "BAMS_1971_1974_3");
+		test(path, "JMS_1975_281_288");
+		test(path, "JMS_1975_289_293");
+		test(path, "JMS_1975_497_506");
+		test(path, "TMJ_1973_317_331");
+		test(path, "TMJ_1973_333_338");
+		test(path, "TMJ_1990_163_193");
 				
 	}
 	
@@ -113,6 +100,8 @@ public class Test {
 		Path mathBBPath = Paths.get(path, filename + ".math");
 		BufferedWriter mathWriter = new BufferedWriter(new FileWriter(mathBBPath.toString()));
 		
+		Path charBBPath = Paths.get(path, filename + ".char");
+		BufferedWriter charWriter = new BufferedWriter(new FileWriter(charBBPath.toString()));
 		
 		//writeMathBBToFile(annotations, path, filename);
 		
@@ -134,46 +123,17 @@ public class Test {
         String outputFile = outPath.toString(); 
 
         visualizations.drawBoundingBoxForImage(
-			document, outputFile, annotations, transformationsReader, useTransforms, mathWriter);
+			document, outputFile, annotations, transformationsReader, useTransforms, mathWriter, charWriter);
 	}
 		
-	private static void writeMathBBToFile(Annotations annotations, String path, String filename) throws IOException {
-		// TODO Auto-generated method stub
-		
-		Path mathBBPath = Paths.get(path, filename + ".math");
-		BufferedWriter writer = new BufferedWriter(new FileWriter(mathBBPath.toString()));
-		
-		List<Sheet> sheets = annotations.getSheets();
-		
-		for(int i=0; i<sheets.size(); i++) {
-			
-			Sheet sheet = sheets.get(i);
-			
-			List<MathData> maths = sheet.getMathAreas();
-			
-			if(maths != null) {
-				for(int j=0; j<maths.size(); j++) {
-					
-					writer.write( i + "," + 
-								  maths.get(j).getBoundingBox().getLeft() + "," +
-								  maths.get(j).getBoundingBox().getTop() + "," +
-								  maths.get(j).getBoundingBox().getRight() + "," +
-								  maths.get(j).getBoundingBox().getBottom() + "\n" );
-				}
-			}
-		}
-		
-		writer.close();
-	}
-
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		
 		//test("/Users/parag/Workspace/GTDB-Dataset/GTDB-1","ActaM_1998_283_305");
 		//test("/Users/parag/Workspace/GTDB-Dataset/GTDB-1","Arkiv_1971_141_163");
 
 		//test("/Users/parag/Desktop/Alford9/","Alford94");
-		testGTDB1();
-		//testGTDB2();
+		//testGTDB1();
+		testGTDB2();
 
 //		AnnotationReader reader = new AnnotationReader();		
 //		Annotations annotations = reader.read("/Users/parag/Workspace/GTDB-Dataset/GTDB-2/Alford94.csv");

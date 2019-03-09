@@ -12,7 +12,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -88,11 +87,15 @@ public class AnnotationReader {
 			    			processText(currentText, lines, texts);
 			    			processImage(currentImage, images);
 			    			
+			    			if(mathStart) {
+			    				maths.add(currentMath);
+			    			}
+			    			
 			    			currentSheet.setImageAreas(images);
 			    			currentSheet.setTextAreas(texts);
 			    			currentSheet.setMathAreas(maths);
 			    			mathStart = false;
-			    			
+
 			    			BoundingBox sheetBB = texts.get(0).getBoundingBox();
 			    			for (int i=1; i<texts.size(); i++) {
 			    				BoundingBox bbox = texts.get(i).getBoundingBox();
@@ -410,55 +413,5 @@ public class AnnotationReader {
 		
 		return new Sheet(Long.parseLong(entries[1]), entries[2], null, null/*textAreas*/, null/*imageAreas*/, null/*mathAreas*/);
 	}
-	
-//	private void processSheet(Sheet currentSheet, Text currentText, Image currentImage, Line currentLine, 
-//    CharData currentChar, List<Sheet> sheets, List<Text> texts, List<Image> images, 
-//    List<Line> lines, List<CharData> chars) {
-//
-//if(currentSheet != null) {
-//
-//if(currentChar != null) {
-//
-//chars.add(currentChar);
-//
-//currentLine.setCharacters(chars);
-//lines.add(currentLine);
-//
-//currentText.setLines(lines);
-//texts.add(currentText);
-//
-//currentSheet.setTextAreas(texts);
-//
-//} else if(currentLine != null) {
-//
-//lines.add(currentLine);
-//
-//currentText.setLines(lines);
-//texts.add(currentText);
-//
-//currentSheet.setTextAreas(texts);
-//
-//} else if(currentText != null) {
-//
-//texts.add(currentText);
-//currentSheet.setTextAreas(texts);
-//}
-//
-//// images are treated separately
-//if(currentImage != null) {
-//images.add(currentImage);
-//currentSheet.setImageAreas(images);
-//}
-//
-//
-//sheets.add(currentSheet);
-//
-//currentSheet = null;
-//currentText = null;
-//currentImage = null;
-//currentLine = null;
-//currentChar = null;
-//}
-//}
 	
 }
