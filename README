@@ -1,0 +1,28 @@
+*************Usage*************
+Please follow the instructions 
+
+
+Run :-	
+	java Main <mode> [op1] [op2] <input dir/file path> [output directory]
+        
+					OR
+
+	java -jar SymbolScraper.jar <mode> [op1] [op2] <input dir/file path> [output directory]
+
+
+Parameters :-
+	mode indicates running mode for the program
+                single mode is default (i.e. only require input file name)
+                -batch - indicates batch mode (takes input file directory and output file directory)
+        op1 optional parameter to write pdf with bounding box
+                -b optional parameter to create PDFs with bounding box
+                -f optional parameter to create PDFs with bounding box
+        op2 is an option parameter for displaying output on the console  or writing onto a file
+                -d to display
+                -p to print
+        input dir/file path- input directory or PDF file path
+        output directory - Directory for output files (required parameter in batch mode)
+
+
+Example : - 
+	java -jar SymbolScraper.jar -batch -p </InputDirectory> </OutputDirectory> 
