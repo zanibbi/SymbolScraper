@@ -113,6 +113,14 @@ public class AnnotationReader {
 			    				sheetBB.setBottom(Math.max(sheetBB.getBottom(),bbox.getBottom()));
 			    			}
 			    			
+			    			for (int i=0; i<maths.size(); i++) {
+			    				BoundingBox bbox = maths.get(i).getBoundingBox();
+			    				sheetBB.setLeft(Math.min(sheetBB.getLeft(),bbox.getLeft()));
+			    				sheetBB.setTop(Math.min(sheetBB.getTop(),bbox.getTop()));
+			    				sheetBB.setRight(Math.max(sheetBB.getRight(),bbox.getRight()));
+			    				sheetBB.setBottom(Math.max(sheetBB.getBottom(),bbox.getBottom()));
+			    			}
+			    			
 		    				currentSheet.setBoundingBox(sheetBB);
 			    			sheets.add(currentSheet);
 			    			

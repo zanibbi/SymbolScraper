@@ -50,8 +50,8 @@ public class Annotate {
 	) throws IOException {
 
 		if(annotations == null || 
-				annotations.getSheets() == null ||
-				annotations.getSheets().size() < 1) {
+			annotations.getSheets() == null ||
+			annotations.getSheets().size() < 1) {
 
 			System.out.println("No annotations found!");
 			return;
@@ -99,25 +99,31 @@ public class Annotate {
 			if(!useTransforms) {
 				offsetX = 0;
 				offsetY = 0;
+				sx = 1;
+				sy = 1;
 			}
 
 			System.out.println("Offsets:(x, y) --> " + offsetX + " , " + offsetY);
 
 			PDRectangle mediaBox = 
 					new PDRectangle(bufferedImage.getMinX(), 
-							bufferedImage.getMinY(),
-							bufferedImage.getWidth(),
-							bufferedImage.getHeight());
+									bufferedImage.getMinY(),
+									bufferedImage.getWidth(),
+									bufferedImage.getHeight());
 
 			annotatedPage = new PDPage(mediaBox);
 
 			Graphics2D graphics = (Graphics2D) bufferedImage.getGraphics();
 			graphics.setStroke(new BasicStroke(Constants.STROKE_SIZE));
 
-			annotateTextAreas(sheet.getTextAreas(), graphics, transformations[sheetCount][0], transformations[sheetCount][1], useTransforms, charWriter, sheetCount, sx, sy, sheet.getBoundingBox());
-			annotateImageAreas(sheet.getImageAreas(), graphics, transformations[sheetCount][0], transformations[sheetCount][1], useTransforms, sx, sy, sheet.getBoundingBox());
-			annotateMathAreas(sheet.getMathAreas(), graphics, transformations[sheetCount][0], transformations[sheetCount][1], useTransforms, mathWriter, sheetCount, sx, sy, sheet.getBoundingBox());
+			annotateTextAreas(sheet.getTextAreas(), graphics, transformations[sheetCount][0], transformations[sheetCount][1],
+							  useTransforms, charWriter, sheetCount, sx, sy, sheet.getBoundingBox());
 			
+			annotateImageAreas(sheet.getImageAreas(), graphics, transformations[sheetCount][0], transformations[sheetCount][1],
+							   useTransforms, sx, sy, sheet.getBoundingBox());
+			
+			annotateMathAreas(sheet.getMathAreas(), graphics, transformations[sheetCount][0], transformations[sheetCount][1],
+							  useTransforms, mathWriter, sheetCount, sx, sy, sheet.getBoundingBox());
 			
 			PDImageXObject pdImageXObject = 
 					JPEGFactory.createFromImage(annotatedDoc, bufferedImage);
@@ -132,8 +138,6 @@ public class Annotate {
 			annotatedDoc.addPage(annotatedPage);
 			sheetCount = sheetCount + 1;
 
-			//TODO
-			//break;
 		}
 
 		File file = new File(ouputFile);
@@ -144,9 +148,8 @@ public class Annotate {
 	}
 
 	private void annotateMathAreas(List<MathData> mathAreas, Graphics2D graphics, double offsetX, 
-			double offsetY, boolean useTransforms, BufferedWriter mathWriter, int sheetCount,
-			double widthRatio, double heightRatio, BoundingBox sheetBB) 
-					throws IOException {
+		double offsetY, boolean useTransforms, BufferedWriter mathWriter, int sheetCount,
+		double widthRatio, double heightRatio, BoundingBox sheetBB) throws IOException {
 
 		if(mathAreas == null) {
 			return;
@@ -158,22 +161,41 @@ public class Annotate {
 
 			BoundingBox boundingBox = math.getBoundingBox();
 
-			int left = (int)Math.round(widthRatio * (boundingBox.getLeft() - sheetBB.getLeft()) + offsetX);
-			int right = (int)Math.round(heightRatio * (boundingBox.getTop() - sheetBB.getTop()) + offsetY);
+			if(useTransforms) {
+				
+				int left = (int)Math.round(widthRatio * (boundingBox.getLeft() - sheetBB.getLeft()) + offsetX);
+				int top = (int)Math.round(heightRatio * (boundingBox.getTop() - sheetBB.getTop()) + offsetY);
+	
+				// left, top, right, bottom
+				graphics.drawRect(
+					left,
+					top,
+					(int)Math.round(widthRatio * (boundingBox.getRight() - boundingBox.getLeft())),
+					(int)Math.round(heightRatio * (boundingBox.getBottom() - boundingBox.getTop())));
+			
+				mathWriter.write(sheetCount + "," + 
+						left + "," +
+						top + "," +
+						(int)Math.round(left + widthRatio * (boundingBox.getRight() - boundingBox.getLeft())) + "," +
+						(int)Math.round(top + heightRatio * (boundingBox.getBottom() - boundingBox.getTop())) + "\n" );
+			
+			} else {
+				
+				// left, top, right, bottom
+				graphics.drawRect(
+					boundingBox.getLeft().intValue(),
+					boundingBox.getTop().intValue(),
+					boundingBox.getRight().intValue() - boundingBox.getLeft().intValue(),
+					boundingBox.getBottom().intValue() - boundingBox.getTop().intValue());
 
-			// left, top, right, bottom
-			graphics.drawRect(
-				left,
-				right,
-				(int)Math.round(widthRatio * (boundingBox.getRight() - boundingBox.getLeft())),
-				(int)Math.round(heightRatio * (boundingBox.getBottom() - boundingBox.getTop())));
-
-			mathWriter.write(sheetCount + "," + 
-					left + "," +
-					right + "," +
-					(int)Math.round(left + widthRatio * (boundingBox.getRight() - boundingBox.getLeft())) + "," +
-					(int)Math.round(right + heightRatio * (boundingBox.getBottom() - boundingBox.getTop())) + "\n" );
-
+				mathWriter.write(sheetCount + "," + 
+					boundingBox.getLeft().intValue() + "," +
+					boundingBox.getTop().intValue() + "," +
+					(int)Math.round(boundingBox.getLeft().intValue() + widthRatio * (boundingBox.getRight() - boundingBox.getLeft())) + "," +
+					(int)Math.round(boundingBox.getTop().intValue() + heightRatio * (boundingBox.getBottom() - boundingBox.getTop())) + "\n" );
+		
+			}
+			
 			fillBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms, widthRatio, heightRatio, sheetBB);	
 			drawBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms, widthRatio, heightRatio, sheetBB);
 		}
@@ -198,8 +220,9 @@ public class Annotate {
 	}
 
 	private void annotateTextAreas(
-			List<Text> textAreas, Graphics2D graphics, double offsetX, double offsetY, 
-			boolean useTransforms, BufferedWriter charWriter, int sheetCount, double widthRatio, double heightRatio, BoundingBox sheetBB) throws IOException {
+		List<Text> textAreas, Graphics2D graphics, double offsetX, double offsetY, 
+		boolean useTransforms, BufferedWriter charWriter, int sheetCount, double widthRatio, 
+		double heightRatio, BoundingBox sheetBB) throws IOException {
 
 		if(textAreas == null) {
 			return;
@@ -254,20 +277,35 @@ public class Annotate {
 				graphics.setColor(Constants.TRASPARENT_GREEN);
 			}
 			
-			int left = (int)Math.round(widthRatio * (boundingBox.getLeft() - sheetBB.getLeft()) + offsetX);
-			int right = (int)Math.round(heightRatio * (boundingBox.getTop() - sheetBB.getTop()) + offsetY);
-			
-			// Store modified annotations
-			charWriter.write(sheetCount + "," + 
-					character.getCharacterId() + "," +
-					left + "," +
-					right + "," +
-					(int)Math.round(left + widthRatio * (boundingBox.getRight() - boundingBox.getLeft())) + "," +
-					(int)Math.round(right + heightRatio * (boundingBox.getBottom() - boundingBox.getTop())) + "," +
-					character.getTextMode() + "," + 
-					character.getLinkLabel() + "," +
-					character.getParentId() + "," +
-					character.getOCRCode() + "\n");
+			if(useTransforms) {
+				int left = (int)Math.round(widthRatio * (boundingBox.getLeft() - sheetBB.getLeft()) + offsetX);
+				int top = (int)Math.round(heightRatio * (boundingBox.getTop() - sheetBB.getTop()) + offsetY);
+				
+				// Store modified annotations
+				charWriter.write(sheetCount + "," + 
+						character.getCharacterId() + "," +
+						left + "," +
+						top + "," +
+						(int)Math.round(left + widthRatio * (boundingBox.getRight() - boundingBox.getLeft())) + "," +
+						(int)Math.round(top + heightRatio * (boundingBox.getBottom() - boundingBox.getTop())) + "," +
+						character.getTextMode() + "," + 
+						character.getLinkLabel() + "," +
+						character.getParentId() + "," +
+						character.getOCRCode() + "\n");
+			} else {
+				
+				// Store modified annotations
+				charWriter.write(sheetCount + "," + 
+						character.getCharacterId() + "," +
+						boundingBox.getLeft() + "," +
+						boundingBox.getTop() + "," +
+						boundingBox.getRight() + "," +
+						boundingBox.getBottom() + "," +
+						character.getTextMode() + "," + 
+						character.getLinkLabel() + "," +
+						character.getParentId() + "," +
+						character.getOCRCode() + "\n");
+			}
 
 			
 			fillBoundingBox(graphics, boundingBox, offsetX, offsetY, useTransforms, widthRatio, heightRatio, sheetBB);			
@@ -280,15 +318,21 @@ public class Annotate {
 			BoundingBox sheetBB) {
 
 		if(!useTransforms) {
-			offsetX = 0;
-			offsetY = 0;
-		}
-
-		graphics.fillRect(
+			
+			graphics.fillRect(
+				boundingBox.getLeft().intValue(),
+				boundingBox.getTop().intValue(),
+				boundingBox.getRight().intValue() - boundingBox.getLeft().intValue(),
+				boundingBox.getBottom().intValue() - boundingBox.getTop().intValue());
+		
+		} else {
+		
+			graphics.fillRect(
 				(int)Math.round(widthRatio * (boundingBox.getLeft() - sheetBB.getLeft()) + offsetX), 
 				(int)Math.round(heightRatio * (boundingBox.getTop() - sheetBB.getTop()) + offsetY),
 				(int)Math.round(widthRatio * (boundingBox.getRight() - boundingBox.getLeft())),
 				(int)Math.round(heightRatio * (boundingBox.getBottom() - boundingBox.getTop())));
+		}
 	}
 
 	private void drawBoundingBox(
@@ -296,14 +340,21 @@ public class Annotate {
 			boolean useTransforms, double widthRatio, double heightRatio, BoundingBox sheetBB) {
 
 		if(!useTransforms) {
-			offsetX = 0;
-			offsetY = 0;
-		}
-
-		graphics.drawRect(
+			
+			graphics.drawRect(
+				boundingBox.getLeft().intValue(),
+				boundingBox.getTop().intValue(),
+				boundingBox.getRight().intValue() - boundingBox.getLeft().intValue(),
+				boundingBox.getBottom().intValue() - boundingBox.getTop().intValue());
+		
+		} else {
+		
+			graphics.drawRect(
 				(int)Math.round(widthRatio * (boundingBox.getLeft() - sheetBB.getLeft()) + offsetX), 
 				(int)Math.round(heightRatio * (boundingBox.getTop() - sheetBB.getTop()) + offsetY),
 				(int)Math.round(widthRatio * (boundingBox.getRight() - boundingBox.getLeft())),
 				(int)Math.round(heightRatio * (boundingBox.getBottom() - boundingBox.getTop())));
+			
+		}
 	}
 }
