@@ -1,4 +1,4 @@
-﻿package com.symbolScraper.TrueBox;
+package com.symbolScraper.TrueBox;
 
 import java.awt.Shape;
 import java.awt.geom.Area;
