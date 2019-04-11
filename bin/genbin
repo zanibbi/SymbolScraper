@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Generate sscraper bash command.
+
+cd ..
+PDIR=`pwd`
+JPATH="${PDIR}/target/SymbolScraper-0.1.0-jar-with-dependencies.jar"
+cd bin
+
+echo "#!/bin/bash" > sscraper
+echo "" >> sscraper
+echo "JPATH=${JPATH}" >> sscraper 
+cat template >> sscraper
+chmod u+x sscraper
+echo ">> sscraper bash script created."
+
+
+

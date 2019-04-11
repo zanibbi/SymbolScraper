@@ -33,7 +33,7 @@
 					<!-- MainClass in mainfest make a executable jar -->
 					<archive>
 					  <manifest>
-						<mainClass>com.symbolScraper.TrueBox.Main</mainClass>
+						<mainClass>TrueBox.Main</mainClass>
 					  </manifest>
 					</archive>
 				</configuration>

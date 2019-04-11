@@ -9,28 +9,33 @@ Developed at the [Document and Pattern Recognition Laboratory](https://www.cs.ri
 
 ## Installation
 
-**Dependencies:** Make sure that both Maven (3.6.0 for us - other versions may work fine) and Java 1.8 are installed on your system. 
+**Dependencies:** Make sure that both Maven (3.6.0 for us - other versions may work fine) and Java 1.8 are installed on your system. Perl is also used to generate the bash scripts used to run the program more easily.
 
-From the current directory, issue ``make``. This will run the Maven build system, download dependencies, etc., compile source files and generate .jar files in ``./target``. Maven will also install the resulting .jar files. 
+**Operating System:** While this code should work on Windows systems as well, we have only tested on Linux and MacOS X so far.
+
+From the current directory, issue ``make``. This will run the Maven build system, download dependencies, etc., compile source files and generate .jar files in ``./target``. Finally, a bash script ``bin/sscraper`` is generated, so that the program can be easily be used in different directories.
 
 The ``pom.xml`` file can be modified to change the Maven build parameters. 
 
+## Bash Script
 
-## Usage
+The ``sscraper`` bash script for processing directories of PDF files can be invoked using:
 
-Run using the following:
+	sscraper [-b] inDir outDir
 	
-	java Main <mode> [op1] [op2] <input dir/file> [output dir]
-        
-or:
+where inDir and outDir are directories containing PDFs to process and place XML output files respectively. Use the '-b' flag to also generate copies of each PDF with bounding boxes in the output directory. 
 
-	java -jar SymbolScraper.jar <mode> [op1] [op2] <input dir/file> [output dir]
+To process a single file, in this first version you will need to use Java directly (see below).
+
+**Note:** Add the bin/ directory to your execution path (the PATH variable in bash shell) in order to use the command anywhere on your system.
+
+## Java Usage
+
+From Java, SymbolScraper is invoked using these parameters:
 	
-Example: processing PDF files in a directory, writing XML symbol data to a separate output directory:
- 
-	java -jar SymbolScraper.jar -batch -p input_dir output_dir 
-
-## Parameters
+	java -jar target/SymbolScraper-0.1.0-jar-with-dependencies.jar <mode> [op1] [op2] <input dir/file> [output dir]
+	
+Parameters:
 
 	<mode>: single file input (default)
 		-batch for input directory containing PDF files 
@@ -43,5 +48,12 @@ Example: processing PDF files in a directory, writing XML symbol data to a separ
 		-p print to file
 	<input dir/file path> - input directory *or* PDF file path
 	<output dir> - output directory (required in batch mode)
+	
+An example of processing a single file, writing an XML file to inputDir/Output:
 
+	java -jar target/SymbolScraper-0.1.0-jar-with-dependencies.jar -p inputDir/file.pdf 
+
+## Questions
+
+Please direct questions or concerns to Richard Zanibbi [rxzvcs@rit.edu](rxzvcs@rit.edu), the director of the Document and Pattern Recognition Lab.
 
