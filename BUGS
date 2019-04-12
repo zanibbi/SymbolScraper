@@ -1,8 +1,0 @@
-Known Bugs
--------------
-
-- Currently bounding boxes are not drawn for PDFs containing only a single page.
-- When processing a single file, the output is written to <inputDir>/Output, which
-  is unexpected.
-
-
