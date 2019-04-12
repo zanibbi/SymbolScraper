@@ -13,7 +13,7 @@ Developed at the [Document and Pattern Recognition Laboratory](https://www.cs.ri
 
 **Operating System:** While this code should work on Windows systems as well, we have only tested on Linux and MacOS X so far.
 
-From the main directory, issue ``make``. This will run the Maven build system, download dependencies, etc., compile source files and generate .jar files in ``./target``. Finally, a bash script ``bin/sscraper`` is generated, so that the program can be easily be used in different directories.
+From the main directory, issue ``make``. This will run the Maven build system, download dependencies, etc., compile source files and generate .jar files in ``./target``. Finally, a bash script ``bin/sscraper`` is generated, so that the program can be easily used in different directories.
 
 The ``pom.xml`` file can be modified to change the Maven build parameters. 
 
