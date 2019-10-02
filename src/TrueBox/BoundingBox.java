@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.ObjectUtils.Null;
 import org.apache.pdfbox.contentstream.operator.color.SetNonStrokingColor;
 import org.apache.pdfbox.contentstream.operator.color.SetNonStrokingColorN;
 import org.apache.pdfbox.contentstream.operator.color.SetNonStrokingColorSpace;
@@ -107,13 +108,11 @@ class BoundingBox extends PDFTextStripper {
     }
 
     public String getGeometricInfo(int pagenum) throws IOException {
-        BarDetection barD = new BarDetection(document.getPage(pagenum));
-        currentPage.bars=barD.getAllBars();
+        // BarDetection barD = new BarDetection(document.getPage(pagenum));
+        // currentPage.bars=barD.getAllBars();
         extract(pagenum);
         String transformation = getBoundingBox();
-        includeBars();
-        //drawBBOX(this.currentPage.pageCharacters,"Page");
-
+        // includeBars();
         return transformation;
     }
 
@@ -297,10 +296,6 @@ class BoundingBox extends PDFTextStripper {
                 continue;
             }
 
-            if(glyph== null){
-                System.out.println();
-            }
-
             try {
                 glyph.coordinates();
                 glyph.BoxCoord();
@@ -311,7 +306,6 @@ class BoundingBox extends PDFTextStripper {
             character.glyph=glyph;
             double width = glyph.adjustResolution(glyph.maxX, fontSize) - glyph.adjustResolution(glyph.minX, fontSize);
             double height = glyph.adjustResolution(glyph.maxY, fontSize) - glyph.adjustResolution(glyph.minY, fontSize);
-
 
             // Update starting point (Y-axis)
             double heightRatio = height / (glyph.maxY-glyph.minY);
@@ -537,7 +531,6 @@ class BoundingBox extends PDFTextStripper {
 
             }
         }
-
 
         ArrayList<Line> allLines =  currentPage.Lines;
         ArrayList<Bars> allBars = currentPage.bars;
