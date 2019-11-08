@@ -68,7 +68,7 @@ class read extends PDFTextStripper{
         String transformation = BBox.getGeometricInfo(pagenum);
         metadata meta = new metadata(BBox.lineId,BBox.wordId,BBox.charId, transformation);
         page.meta=meta;
-        //System.out.println("PageNume::"+BBox.pageNum+" Lines::"+BBox.lineId+" Words::"+  BBox.wordId+" Characters::"+BBox.charId);
+        // System.out.println("PageNume::"+BBox.pageNum+" Lines::"+BBox.lineId+" Words::"+  BBox.wordId+" Characters::"+BBox.charId);
         return page;
     }
 

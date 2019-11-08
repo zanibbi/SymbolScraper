@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.List;
 
 enum doctype{
     Normal,Filtered
@@ -50,7 +51,6 @@ public class drawBBOX {
     drawBBOX(PDDocument doc, ArrayList<PageStructure> allPages){
         this.allPages=allPages;
         this.document=doc;
-
     }
 
     public void draw(int pagenum,doctype t) throws IOException {
@@ -59,9 +59,19 @@ public class drawBBOX {
     }
 
     public void drawPDF(doctype t) throws IOException {
+        Logger logFile = new Logger("symbolscraper-log.csv");
+        List<String[]> logData = new ArrayList<String[]>();
+        logData.add(new String[] {"Page Number", "Parse Succeeded", "Parse Failed"});
         for(int i=0;i<allPages.size();i++){
+            try {
             draw(i,t);
+                logData.add(new String[] {String.valueOf(i + 1), "1", "0"});
+            } catch (IOException e) {
+                logData.add(new String[] {String.valueOf(i + 1), "0", "1"});
+                e.printStackTrace();
+            }
         }
+        logFile.writeBatchLog(logData);
     }
 
     //public void drawPageBBOX(int pagenum,HashMap<Integer, characterInfo> charList,ArrayList<Bars> bars, doctype t) throws IOException {
@@ -108,14 +118,13 @@ public class drawBBOX {
 
             compundCharacter com = (compundCharacter) pair.getValue();
             BBOX box = com.boundingBox;
-            //System.out.println(box.startX+" "+ box.startY+" "+ box.width+" "+ box.height);
+
             contentStream.addRect(box.startX, box.startY, box.width, box.height);
             if(t==doctype.Filtered) {
                 contentStream.setNonStrokingColor(Color.WHITE);
                 contentStream.fill();
             }
             else if(t==doctype.Normal){
-
                 contentStream.setStrokingColor(Color.RED);
                 contentStream.stroke();
             }
@@ -123,7 +132,6 @@ public class drawBBOX {
                 System.out.println("Invalid doctype input");
             }
         }
-
 
         contentStream.closeAndStroke();
         contentStream.close();

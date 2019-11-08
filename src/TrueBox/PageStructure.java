@@ -165,7 +165,6 @@ class baseLine{
 
 @Getter
 @Setter
-@AllArgsConstructor
 @ToString
 class metadata{
     int linecount;
@@ -173,11 +172,11 @@ class metadata{
     int charactercount;
     String transformation;
     
-    metadata(int linecount,int wordcount, int charactercount){
+    metadata(int linecount,int wordcount, int charactercount, String transformation){
         this.linecount=linecount;
         this.wordcount=wordcount;
         this.charactercount=charactercount;
-        this.transformation = null;
+        this.transformation = transformation;
     }
 }
 

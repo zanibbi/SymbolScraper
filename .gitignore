@@ -1,1 +1,21 @@
+.DS_Store
 /bin/
+
+# Ignore Logger files 
+*.csv
+
+# Editor directories/files
+.idea
+.vscode
+.settings
+result.txt
+.classpath
+target/
+.project
+.factorypath
+*.class
+createdFiles.lst
+inputFiles.lst
+*.jar
+org.eclipse.jdt.core.prefs
+org.eclipse.m2e.core.prefs

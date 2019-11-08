@@ -56,7 +56,7 @@ class BarDetection extends PDFGraphicsStreamEngine {
 
     public ArrayList<Bars> getAllBars() throws IOException {
         processPage(page);
-        //filterBars();
+        // filterBars();
         return allBars;
     }
 
@@ -167,7 +167,6 @@ class BarDetection extends PDFGraphicsStreamEngine {
         glyph.BoxCoord();
         allBars.add(new Bars(new BBOX((float)glyph.minX,(float)glyph.minY,(float)(glyph.maxX-glyph.minX),(float)(glyph.maxY-glyph.minY))));
         //System.out.println(linePath.getBounds2D());
-
         linePath.reset();
     }
 

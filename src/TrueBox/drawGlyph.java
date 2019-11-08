@@ -38,7 +38,7 @@ enum type {
     Adjusted,Normal
 }
 
-class drawGlyph extends Applet {
+class drawGlyph {
 
     GeneralPath glyphPath;
     ArrayList<Double> x1 = new ArrayList<Double>();
@@ -184,10 +184,6 @@ class drawGlyph extends Applet {
         }
         drawGlyph temp = new drawGlyph(newPath,ch,unicode,fontSize,EmSqaure);
         temp.saveAsImage();
-
-
-
-
     }
 
 
@@ -213,12 +209,11 @@ class drawGlyph extends Applet {
         PathIterator iter = glyphPath.getPathIterator(null);
         //PathIterator copyIter = iter.clone();
 
-
         double coords[] = new double[6];
         double sumX = 0;
         double sumY = 0;
         int numPoints = 0;
-
+        
         //System.out.println("Coords:: "+ch);
         while(!iter.isDone()){
             //iter.next();
@@ -237,11 +232,6 @@ class drawGlyph extends Applet {
 //                    System.out.println("Seg Code::"+seg_code);
 //                    break;
 //                }
-//            }
-//            for(double c:coords){
-//
-//                System.out.print(c+" ");
-//
 //            }
             op.add(s);
             switch (s) {
@@ -275,10 +265,6 @@ class drawGlyph extends Applet {
                     break;
 
             }
-
-
-
-
             allx1.add(coords[0]);
             ally1.add(coords[1]);
             allx2.add(coords[2]);

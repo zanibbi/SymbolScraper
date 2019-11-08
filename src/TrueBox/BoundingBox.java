@@ -238,9 +238,22 @@ class BoundingBox extends PDFTextStripper {
 
             TextPosition text = character.charInfo;
         	
+            // String originalInfo = "Initial Text: " + text.getUnicode() + "\n" +
+            //                       "Original X, Y, Width Height (End): " + text.getEndX() + "," + text.getEndY() + "," + text.getWidth() + "," + text.getHeight() + "\n" + 
+            //                       "Font Type: " + text.getFont() + "\n" +
+            //                       "Font Size: " + text.getFontSize() + "\n" + 
+            //                       "Text Rotation: " + text.getRotation() + "\n" +
+            //                       "Page Width: " + text.getPageWidth() + "\n" + 
+            //                       "Page Height: " + text.getPageHeight() + "\n" + 
+            //                       "Adjusted X,Y Position For Directional Text: " + text.getXDirAdj() + "," + text.getYDirAdj() + "\n" + 
+            //                       "Adjusted X,Y Position (0,0 upper sleft staritng point): " + text.getX() + text.getY() + "\n";  
+
+
             float startX = text.getTextMatrix().getTranslateX();
             float startY = text.getTextMatrix().getTranslateY();
         	
+            // String afterTranslationInfo = "Translated X, Y Position: " + startX + "," + startY; 
+            // System.out.println(originalInfo + afterTranslationInfo);
             
 //            if(first) {
 //            	transformation = startX + "," + startY;
@@ -276,7 +289,6 @@ class BoundingBox extends PDFTextStripper {
                 PDType1CFont Type1Cfont = (PDType1CFont) font;
                 glyph = new drawGlyph(Type1Cfont.getPath(Type1Cfont.codeToName(text.getCharacterCodes()[0])),
                         text.getCharacterCodes()[0], text.getUnicode(), fontSize,1000);
-
             }
 
             else if (font instanceof PDType0Font) {
@@ -328,6 +340,9 @@ class BoundingBox extends PDFTextStripper {
             }
 
             character.boundingBox = new BBOX(startX, startY, (float) width, (float) height);
+            // String bbox_str = character.boundingBox.startX + "," + character.boundingBox.startY + "," +
+            //                   character.boundingBox.width + "," + character.boundingBox.height;  
+            // System.out.println("Computed BBox (X, Y, W, H):" + bbox_str + "\n");
 
             if(character.value.equals('\u221A') || character.value.equals('\u23B7') || character.value.equals("√") ) {
                 radical.add(character);
@@ -434,7 +449,6 @@ class BoundingBox extends PDFTextStripper {
             return false;
 
         return true;
-
     }
 
     public boolean notAlphabet(String value){

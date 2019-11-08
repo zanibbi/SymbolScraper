@@ -88,8 +88,8 @@ public class Main {
         File dir;
         String op;
         String op1;
-        switch (argLength) {
 
+        switch (argLength) {
             case 1:
                 inpfile = args[0];
 
@@ -316,7 +316,8 @@ public class Main {
                     if (dirFile.isFile() && dirFile.getName().endsWith(".pdf")) {
                         Inpfilename = dirFile.getName().split("\\.")[0];
                         System.out.println("\n\nFile :\t"+dirFile.getName());
-                        mathextract(inpfile+fileseparator+dirFile.getName());
+                        String inFile = inpfile+fileseparator+dirFile.getName(); 
+                        mathextract(inFile);
                     }
                 }
 
@@ -362,13 +363,14 @@ public class Main {
     public static void mathextract(String filename) throws IOException, JDOMException, SAXException, ParserConfigurationException, InterruptedException {
 	        
     	try {
-    		long starttime = System.currentTimeMillis();
-	
+            long starttime = System.currentTimeMillis();
+            
+            System.out.println("Parsing File:");
+            System.out.println(filename);
 	        //Load File
 	        File file = new File(filename);
 	        FileInputStream inpStream = new FileInputStream(file);
 	        PDDocument documnet = PDDocument.load(inpStream);
-	
 	
 	        //Readfile
 	        read reader = new read(documnet);
@@ -478,6 +480,7 @@ public class Main {
 	        System.out.println("Time taken ="+endtime+"ms");
     	}
     	catch(Exception e) {
+            e.printStackTrace();
     		System.err.println("Exception occurred for file: "+Inpfilename );
     	}
     }
