@@ -23,14 +23,10 @@
 
 package TrueBox;
 
-
+import java.awt.geom.*;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.awt.Shape;
-import java.awt.geom.Area;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.PathIterator;
-import java.awt.geom.AffineTransform;
 import java.awt.Rectangle;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -47,6 +43,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.charset.Charset;
 
 import org.apache.commons.lang3.ObjectUtils.Null;
+import org.apache.fontbox.ttf.HeaderTable;
 import org.apache.pdfbox.contentstream.operator.color.SetNonStrokingColor;
 import org.apache.pdfbox.contentstream.operator.color.SetNonStrokingColorN;
 import org.apache.pdfbox.contentstream.operator.color.SetNonStrokingColorSpace;
@@ -72,12 +69,12 @@ import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1CFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.PDMMType1Font;
+import org.apache.pdfbox.pdmodel.font.PDType3Font;
+import org.apache.pdfbox.pdmodel.font.PDVectorFont;
 import org.apache.fontbox.cff.CFFType1Font;
 import org.apache.fontbox.type1.Type1Font;
 import org.apache.fontbox.FontBoxFont;
 import org.apache.fontbox.cff.Type1CharString;
-import org.apache.pdfbox.pdmodel.font.PDType3Font;
-import org.apache.pdfbox.pdmodel.font.PDVectorFont;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
@@ -85,9 +82,11 @@ import org.apache.pdfbox.pdmodel.font.encoding.GlyphList;
 import org.apache.pdfbox.pdmodel.font.encoding.WinAnsiEncoding;
 import org.apache.pdfbox.contentstream.PDFGraphicsStreamEngine;
 import org.apache.pdfbox.pdmodel.font.PDFontDescriptor;
+import org.apache.pdfbox.examples.util.DrawPrintTextLocations;
+import sun.java2d.loops.FillRect;
 
 class BoundingBox extends PDFTextStripper {
-
+//class BoundingBox extends DrawPrintTextLocations {
     int pageNum;
     PageStructure currentPage;
     int charNumber = 0;
@@ -108,7 +107,8 @@ class BoundingBox extends PDFTextStripper {
     ArrayList<characterInfo> radical =  new ArrayList<characterInfo>() ;
 
     public BoundingBox(PDDocument doc, int pagenum, PageStructure page) throws IOException {
-        super();
+//        super(doc, "filesname"); //drawprinttextlocations
+        super(); //PDFTextStripper
         document = doc;
         this.pageNum = pagenum;
         this.currentPage = page;
@@ -160,54 +160,10 @@ class BoundingBox extends PDFTextStripper {
         boolean singleWord=false;
         String currentword="";
         String word[] = string.split(getWordSeparator());
-        System.out.println("Here");
-        System.out.println(string);
-        for(int i=0; i < textPositions.size(); i++){
-            System.out.println(textPositions.get(i));
-        }
-        System.out.println(textPositions);
-        PDDocument dummydoc = new PDDocument();
-        PDPage dummypage = new PDPage();
-//        PDFont dummyfont = textPositions.get(0).getFont();
-//        PDType1Font dummyfont = (PDType1Font) textPositions.get(0).getFont();
-//        PDFont dummyfont = PDType0Font.load(document, PDDocument.class.getClassLoader().getResourceAsStream("https://ctan.org/tex-archive/fonts/cm/ps-type1/bakoma/ttf/cmr10.ttf"));
-//        PDFont dummyfont = PDType0Font.load(document, this.getClass().getResourceAsStream("/cmr10.ttf"));
-        File fontfile = new File("/home/jdiehl/IdeaProjects/cmr10.ttf");
-        PDType0Font dummyfont = PDType0Font.load(document, fontfile);
-//        PDFontDescriptor dummydesc = dummyfont.getFontDescriptor();
-//        dummydesc.setNonSymbolic(true);
-//        dummydesc.setSymbolic(true);
-//        dummyfont.setFontDescriptor(dummydesc);
-//        dummyfont.setFontEncoding(WinAnsiEncoding.INSTANCE);
-//        byte[] encodedStr = dummyfont.encode(string);
-//        System.out.println(document.getPage(0).getCOSObject());
-        PDPageContentStream dummystream = new PDPageContentStream(document, document.getPage(0));
-//        Encoding e = EncodingManager.INSTANCE.getEncoding(COSName.WIN_ANSI_ENCODING);
-//        String encodedChar = String.valueOf(Character.toChars(e.getCode(e.getNameFromCharacter(string))));
-        dummystream.beginText();
-        dummystream.setFont(dummyfont, textPositions.get(0).getFontSizeInPt());
-        dummystream.newLineAtOffset(100,100);
-//        byte[] commands = "(x) Tj ".getBytes();
-//        commands[1] = (byte) 128;
-//        dummystream.appendRawCommands(commands);
-        dummystream.showText(textPositions.get(0).getCharacterCodes()[0]);
-        dummystream.endText();
-        dummystream.close();
-        dummydoc.close();
 
-//        PDFGraphicsStreamEngine dummystream = new PDFGraphicsStreamEngine(document.getPage(0));
-//        dummystream.beginText();
-//        dummystream.showText(encodedStr);
-//        dummystream.endText();
-//        dummydoc.close();
-
-
-//
-//        PDRectangle dummybox = dummypage.getBBox();
-//        System.out.println(dummybox);
-        //java.lang.IllegalArgumentException: U+0308 ('dieresiscmb') is not available
-        //in this font HODZXD+CMR10 (generic: HODZXD+CMR10) encoding: built-in (Type 1)
-        //... U+00CB ('Edieresis') ...
+//        //debug
+//        Utilities ut = new Utilities();
+//        ut.debugWriteToPDF(string, textPositions, true);
 
         if(word.length==1){
 
@@ -349,109 +305,79 @@ class BoundingBox extends PDFTextStripper {
             if (font instanceof PDTrueTypeFont){
                 System.out.println("TrueType Font");
                 PDTrueTypeFont TTFfont = (PDTrueTypeFont) font;
+                HeaderTable headerTable = TTFfont.getTrueTypeFont().getHeader();
+                int unitsPerEm = headerTable.getUnitsPerEm();
+                long magic = headerTable.getMagicNumber();
 
+                System.out.println("units:" + unitsPerEm);
+                System.out.println(magic);
+                System.out.println();
+//                glyph = new drawGlyph(TTFfont.getPath(text.getCharacterCodes()[0]),
+//                        text.getCharacterCodes()[0], text.getUnicode(), fontSize,2048);
+//                glyph = new drawGlyph(TTFfont.getPath(text.getCharacterCodes()[0]),
+//                        text.getCharacterCodes()[0], text.getUnicode(), fontSize, 180);
                 glyph = new drawGlyph(TTFfont.getPath(text.getCharacterCodes()[0]),
-                        text.getCharacterCodes()[0], text.getUnicode(), fontSize,2048);
-
+                        text.getCharacterCodes()[0], text.getUnicode(), fontSize, 180);
             }
             else if (font instanceof PDType1Font) {
                 System.out.println("Type1Font");
                 PDType1Font Type1font = (PDType1Font) font;
                 FontBoxFont FBFont = Type1font.getFontBoxFont();
                 Type1Font T1Font = (Type1Font) FBFont;
-                PDFont PDfont = (PDFont) font;
-                System.out.println(Type1font.getEncoding());
-
-                if (true){
-                    File fontfile = new File("/home/jdiehl/IdeaProjects/cmr10.ttf");
-                    PDType0Font dummyfont = PDType0Font.load(document, fontfile);
-                    glyph = new drawGlyph(dummyfont.getPath(text.getCharacterCodes()[0]),
-                            text.getCharacterCodes()[0], text.getUnicode(), fontSize, 1000);
-
-                }
-                else {
-
-                    System.out.println(Type1font.getGlyphList());
-                    System.out.println(T1Font.getType1CharString("dieresis"));
-                    System.out.println(T1Font.getType1CharString("ring"));
-                    System.out.println(text.getCharacterCodes()[0]);
-                    System.out.println(font.getHeight(text.getCharacterCodes()[0]));
-                    System.out.println(font.getWidthFromFont(text.getCharacterCodes()[0]));
-                    try {
-                        System.out.println(GlyphList.getAdobeGlyphList().sequenceToName(text.getUnicode()));
-                        TextPosition baseText = new TextPosition(text.getRotation(), text.getPageWidth(),
-                                text.getPageHeight(), text.getTextMatrix(), text.getEndX(), text.getEndY(), text.getHeight(),
-                                text.getIndividualWidths()[0], text.getWidthOfSpace(), Type1font.getGlyphList().toUnicode(Type1font.getGlyphList().codePointToName(text.getCharacterCodes()[0])),
-                                text.getCharacterCodes(), PDfont, text.getFontSize(), (int) text.getFontSizeInPt());
-                        TextPosition diacriticText = new TextPosition(text.getRotation(), text.getPageWidth(),
-                                text.getPageHeight(), text.getTextMatrix(), text.getEndX(), text.getEndY(), text.getHeight(),
-                                text.getIndividualWidths()[1], text.getWidthOfSpace(), Type1font.getGlyphList().toUnicode(Type1font.getGlyphList().codePointToName(text.getUnicode().codePointAt(1))),
-                                text.getCharacterCodes(), PDfont, text.getFontSize(), (int) text.getFontSizeInPt());
-                        System.out.println(baseText.getUnicode());
-                        baseText.mergeDiacritic(diacriticText);
-                        System.out.println(baseText.getUnicode());
 
 
-                        //                    PDPageContentStream dummystream = new PDPageContentStream(document, document.getPage(0));
-                        //                    dummystream.beginText();
-                        //                    dummystream.setFont(Type1font, text.getFontSizeInPt());
-                        //                    dummystream.newLineAtOffset(100,100);
-                        //                    dummystream.showText(baseText.getUnicode());
-                        //                    dummystream.endText();
-                        //                    dummystream.close();
+//                //debug
+//                Utilities ut = new Utilities();
+//                ut.debugTextType1Stats(font, text);
 
-
-                        //                    System.out.println(String.getName(baseText.getUnicode()));
-                        System.out.println(PDfont.getFontDescriptor().getCharSet());
-                        System.out.println(T1Font.getCharStringsDict());
-                        System.out.println(font.getHeight(text.getUnicode().codePointAt(1)));
-                        System.out.println(font.getWidthFromFont(text.getUnicode().codePointAt(1)));
-                        GeneralPath combinedpath = (GeneralPath) Type1font.getPath(Type1font.getGlyphList().codePointToName(text.getUnicode().codePointAt(1)).replace("cmb", "")).clone();
-                        GeneralPath combinedpath2 = (GeneralPath) Type1font.getPath(Type1font.codeToName(text.getCharacterCodes()[0])).clone();
-                        Rectangle bounds = combinedpath.getBounds();
-                        Rectangle bounds2 = combinedpath2.getBounds();
-                        Boolean descendingDiacritic = false;
-                        if (bounds.y < bounds2.y) {
-                            descendingDiacritic = true;
-                        }
-                        if (Character.isLowerCase(text.getUnicode().codePointAt(0)) || descendingDiacritic) { //lowercase or decending accent
-                            AffineTransform transform = new AffineTransform();
-                            combinedpath2.append(combinedpath.getPathIterator(transform), true);
-                            glyph = new drawGlyph(combinedpath2,
-                                    text.getCharacterCodes()[0], text.getUnicode(), fontSize, 1000);
-
-                        } else { // upper case with ascending accent
-                            AffineTransform transform = new AffineTransform();
-                            //                        float margin = PDfont.getFontDescriptor().getFontBoundingBox().getUpperRightY() - (bounds.y + bounds.height);
-                            float margin = bounds.y - PDfont.getFontDescriptor().getXHeight();
-                            float newy = -bounds.y + PDfont.getFontDescriptor().getAscent() + margin;
-                            //                          float newy = -bounds.y + PDfont.getFontDescriptor().getAscent() + 90 + bounds.height/2;
-                            transform.translate(0, newy);
-                            combinedpath2.append(combinedpath.getPathIterator(transform), true);
-                            glyph = new drawGlyph(combinedpath2,
-                                    text.getCharacterCodes()[0], text.getUnicode(), fontSize, 1000);
-                        }
-                        System.out.println("HERE");
-                    } catch (Exception e) {
-                        System.out.println("No code point at 1.");
-                        System.out.println(e);
-                        glyph = new drawGlyph(Type1font.getPath(Type1font.codeToName(text.getCharacterCodes()[0])),
-                                text.getCharacterCodes()[0], text.getUnicode(), fontSize, 1000);
+                try {
+                    GeneralPath diacriticpath = (GeneralPath) Type1font.getPath(Type1font.getGlyphList().codePointToName(text.getUnicode().codePointAt(1)).replace("cmb", "")).clone();
+                    GeneralPath basepath = (GeneralPath) Type1font.getPath(Type1font.codeToName(text.getCharacterCodes()[0])).clone();
+                    Rectangle bounds = diacriticpath.getBounds();
+                    Rectangle bounds2 = basepath.getBounds();
+                    Boolean descendingDiacritic = false;
+                    if (bounds.y < bounds2.y) {
+                        descendingDiacritic = true;
                     }
+                    if (Character.isLowerCase(text.getUnicode().codePointAt(0)) || descendingDiacritic) { //lowercase or decending accent
+                        AffineTransform transform = new AffineTransform();
+                        basepath.append(diacriticpath.getPathIterator(transform), true);
+                        glyph = new drawGlyph(basepath,
+                                text.getCharacterCodes()[0], text.getUnicode(), fontSize, 1000);
 
+                    } else { // upper case with ascending accent
+                        AffineTransform transform = new AffineTransform();
+                        //                        float margin = PDfont.getFontDescriptor().getFontBoundingBox().getUpperRightY() - (bounds.y + bounds.height);
+                        float margin = bounds.y - font.getFontDescriptor().getXHeight();
+                        float newy = -bounds.y + font.getFontDescriptor().getAscent() + margin;
+                        //                          float newy = -bounds.y + PDfont.getFontDescriptor().getAscent() + 90 + bounds.height/2;
+                        transform.translate(0, newy);
+                        basepath.append(diacriticpath.getPathIterator(transform), true);
+                        glyph = new drawGlyph(basepath,
+                                text.getCharacterCodes()[0], text.getUnicode(), fontSize, 1000);
 
-                    System.out.println("----");
-                    //                glyph = new drawGlyph(Type1font.getPath("dieresis"),
-                    //                        text.getCharacterCodes()[0], text.getUnicode(), fontSize,1000);
-                    //                glyph = new drawGlyph(Type1font.getPath("y"),
-                    //                        text.getCharacterCodes()[0], text.getUnicode(), fontSize,1000);
+                    }
+                } catch (Exception e) {
+//                    System.out.println("No code point at 1.");
+//                    System.out.println(e);
+                    glyph = new drawGlyph(Type1font.getPath(Type1font.codeToName(text.getCharacterCodes()[0])),
+                            text.getCharacterCodes()[0], text.getUnicode(), fontSize, 1000);
                 }
+
             }
             else if (font instanceof PDType1CFont) {
                 System.out.println("Type1CFont");
                 PDType1CFont Type1Cfont = (PDType1CFont) font;
-                glyph = new drawGlyph(Type1Cfont.getPath(Type1Cfont.codeToName(text.getCharacterCodes()[0])),
-                        text.getCharacterCodes()[0], text.getUnicode(), fontSize,1000);
+                System.out.println(Type1Cfont.isEmbedded());
+//                glyph = new drawGlyph(Type1Cfont.getPath(Type1Cfont.codeToName(text.getCharacterCodes()[0])),
+//                        text.getCharacterCodes()[0], text.getUnicode(), fontSize,1000);
+                if(true) {
+                    glyph = new drawGlyph(Type1Cfont.getPath(Type1Cfont.codeToName(text.getCharacterCodes()[0])),
+                            text.getCharacterCodes()[0], text.getUnicode(), fontSize, 87);
+                } else {
+                    glyph = new drawGlyph(Type1Cfont.getPath(Type1Cfont.codeToName(text.getCharacterCodes()[0])),
+                            text.getCharacterCodes()[0], text.getUnicode(), fontSize, 185);
+                }
             }
             else if (font instanceof PDType0Font) { //CID Fonts
                 System.out.println("Type0Font");
