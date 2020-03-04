@@ -160,11 +160,9 @@ class BoundingBox extends PDFTextStripper {
         boolean singleWord=false;
         String currentword="";
         String word[] = string.split(getWordSeparator());
-
 //        //debug
 //        Utilities ut = new Utilities();
 //        ut.debugWriteToPDF(string, textPositions, true);
-
         if(word.length==1){
 
             singleWord=true;
@@ -256,7 +254,6 @@ class BoundingBox extends PDFTextStripper {
         HashMap<Integer, characterInfo> charList = currentPage.pageCharacters;
 
         Iterator iter = charList.entrySet().iterator();
-        System.out.println(charList.size());
         boolean first = true;
         String transformation = "";
         
@@ -299,37 +296,23 @@ class BoundingBox extends PDFTextStripper {
             float fontSize = text.getFontSize();
 
             PDFont font = text.getFont();
-            System.out.println(font);
+//            System.out.println(font);
             drawGlyph glyph=null;
 
             if (font instanceof PDTrueTypeFont){
-                System.out.println("TrueType Font");
+//                System.out.println("TrueType Font");
                 PDTrueTypeFont TTFfont = (PDTrueTypeFont) font;
-                HeaderTable headerTable = TTFfont.getTrueTypeFont().getHeader();
-                int unitsPerEm = headerTable.getUnitsPerEm();
-                long magic = headerTable.getMagicNumber();
-
-                System.out.println("units:" + unitsPerEm);
-                System.out.println(magic);
-                System.out.println();
-//                glyph = new drawGlyph(TTFfont.getPath(text.getCharacterCodes()[0]),
-//                        text.getCharacterCodes()[0], text.getUnicode(), fontSize,2048);
-//                glyph = new drawGlyph(TTFfont.getPath(text.getCharacterCodes()[0]),
-//                        text.getCharacterCodes()[0], text.getUnicode(), fontSize, 180);
                 glyph = new drawGlyph(TTFfont.getPath(text.getCharacterCodes()[0]),
                         text.getCharacterCodes()[0], text.getUnicode(), fontSize, 180);
             }
             else if (font instanceof PDType1Font) {
-                System.out.println("Type1Font");
+//                System.out.println("Type1Font");
                 PDType1Font Type1font = (PDType1Font) font;
                 FontBoxFont FBFont = Type1font.getFontBoxFont();
                 Type1Font T1Font = (Type1Font) FBFont;
-
-
 //                //debug
 //                Utilities ut = new Utilities();
 //                ut.debugTextType1Stats(font, text);
-
                 try {
                     GeneralPath diacriticpath = (GeneralPath) Type1font.getPath(Type1font.getGlyphList().codePointToName(text.getUnicode().codePointAt(1)).replace("cmb", "")).clone();
                     GeneralPath basepath = (GeneralPath) Type1font.getPath(Type1font.codeToName(text.getCharacterCodes()[0])).clone();
@@ -366,11 +349,9 @@ class BoundingBox extends PDFTextStripper {
 
             }
             else if (font instanceof PDType1CFont) {
-                System.out.println("Type1CFont");
+//                System.out.println("Type1CFont");
                 PDType1CFont Type1Cfont = (PDType1CFont) font;
                 System.out.println(Type1Cfont.isEmbedded());
-//                glyph = new drawGlyph(Type1Cfont.getPath(Type1Cfont.codeToName(text.getCharacterCodes()[0])),
-//                        text.getCharacterCodes()[0], text.getUnicode(), fontSize,1000);
                 if(true) {
                     glyph = new drawGlyph(Type1Cfont.getPath(Type1Cfont.codeToName(text.getCharacterCodes()[0])),
                             text.getCharacterCodes()[0], text.getUnicode(), fontSize, 87);
@@ -380,7 +361,7 @@ class BoundingBox extends PDFTextStripper {
                 }
             }
             else if (font instanceof PDType0Font) { //CID Fonts
-                System.out.println("Type0Font");
+//                System.out.println("Type0Font");
                 PDType0Font Type0font = (PDType0Font) font;
                 PDCIDFont descendant = Type0font.getDescendantFont();
                 int emsize = 1000;
