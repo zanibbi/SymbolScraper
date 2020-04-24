@@ -2,7 +2,7 @@
 
 An Apache [PDFBox](https://pdfbox.apache.org) extension for extracting symbol labels and bounding boxes from born-digital PDF files. Implemented in Java.
 
-**Copyright (c) 2018, 2019 Ritvik Joshi, Parag Mali, Puneeth Kukkadapu, Mahshad Mahdavi, and Richard Zanibbi**   
+**Copyright (c) 2018, 2019 Ritvik Joshi, Parag Mali, Puneeth Kukkadapu, Mahshad Mahdavi, Jessica Diehl and Richard Zanibbi**   
 
 Developed at the [Document and Pattern Recognition Laboratory](https://www.cs.rit.edu/~dprl/index.html)  
 (Rochester Institute of Technology, USA)
