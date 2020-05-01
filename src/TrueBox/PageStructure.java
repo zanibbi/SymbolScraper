@@ -93,6 +93,7 @@ class characterInfo{
     int charId;
     String value;
     BBOX boundingBox;
+    ArrayList<BBOX> segmentBoxes;
     int mergeId;
     int wordID;
     int lineID;
@@ -100,11 +101,16 @@ class characterInfo{
     drawGlyph glyph;
     TextColor textcolor;
     
-    characterInfo(int charId,String value,TextPosition text,BBOX bbox,drawGlyph glyph, int mergeId,int wordID,int lineID,TextColor textcolor){
+    characterInfo(int charId,String value,TextPosition text,BBOX bbox,
+                  ArrayList<BBOX> segmentboxes, drawGlyph glyph, int mergeId,
+                  int wordID,
+                  int lineID,
+                  TextColor textcolor){
         this.charId=charId;
         this.value=value;
         this.charInfo = text;
         this.boundingBox=bbox;
+        this.segmentBoxes = segmentboxes;
         this.mergeId = mergeId;
         this.wordID=wordID;
         this.lineID=lineID;
