@@ -439,7 +439,7 @@ public class Main {
 	        if(filterFlag){
 	            //Load Dictionary
 	
-	            File dicfile = new File("Dictionary");
+	            File dicfile = new File("src/Dictionary");
 	            HashMap<String, Integer> wordDictionary =  new HashMap<String,Integer>();
 	            wordDictionary = loadDictionary(dicfile);
 	            FilterText filterText = new FilterText(wordDictionary);

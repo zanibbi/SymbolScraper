@@ -23,68 +23,29 @@
 
 package TrueBox;
 
-import java.awt.geom.*;
-import java.text.Normalizer;
-import java.text.Normalizer.Form;
-import java.awt.Shape;
-import java.awt.Rectangle;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-import java.nio.charset.StandardCharsets;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-
-import org.apache.commons.lang3.ObjectUtils.Null;
-import org.apache.fontbox.ttf.HeaderTable;
-import org.apache.pdfbox.contentstream.operator.color.SetNonStrokingColor;
-import org.apache.pdfbox.contentstream.operator.color.SetNonStrokingColorN;
-import org.apache.pdfbox.contentstream.operator.color.SetNonStrokingColorSpace;
-import org.apache.pdfbox.contentstream.operator.color.SetNonStrokingDeviceCMYKColor;
-import org.apache.pdfbox.contentstream.operator.color.SetNonStrokingDeviceGrayColor;
-import org.apache.pdfbox.contentstream.operator.color.SetNonStrokingDeviceRGBColor;
-import org.apache.pdfbox.contentstream.operator.color.SetStrokingColor;
-import org.apache.pdfbox.contentstream.operator.color.SetStrokingColorN;
-import org.apache.pdfbox.contentstream.operator.color.SetStrokingColorSpace;
-import org.apache.pdfbox.contentstream.operator.color.SetStrokingDeviceCMYKColor;
-import org.apache.pdfbox.contentstream.operator.color.SetStrokingDeviceGrayColor;
-import org.apache.pdfbox.contentstream.operator.color.SetStrokingDeviceRGBColor;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDTrueTypeFont;
-import org.apache.pdfbox.pdmodel.font.PDCIDFont;
-import org.apache.pdfbox.pdmodel.font.PDCIDFontType0;
-import org.apache.pdfbox.pdmodel.font.PDCIDFontType2;
-import org.apache.pdfbox.pdmodel.font.PDType0Font;
-import org.apache.pdfbox.pdmodel.font.PDType1CFont;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.font.PDMMType1Font;
-import org.apache.pdfbox.pdmodel.font.PDType3Font;
-import org.apache.pdfbox.pdmodel.font.PDVectorFont;
-import org.apache.fontbox.cff.CFFType1Font;
-import org.apache.fontbox.type1.Type1Font;
 import org.apache.fontbox.FontBoxFont;
-import org.apache.fontbox.cff.Type1CharString;
+import org.apache.fontbox.type1.Type1Font;
+import org.apache.pdfbox.contentstream.operator.color.*;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.font.*;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
-import org.apache.pdfbox.pdmodel.font.encoding.GlyphList;
-import org.apache.pdfbox.pdmodel.font.encoding.WinAnsiEncoding;
-import org.apache.pdfbox.contentstream.PDFGraphicsStreamEngine;
-import org.apache.pdfbox.pdmodel.font.PDFontDescriptor;
+
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.PathIterator;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.List;
+import java.util.*;
+import java.util.regex.Pattern;
+
 //import org.apache.pdfbox.examples.util.DrawPrintTextLocations;
-import sun.java2d.loops.FillRect;
 
 class BoundingBox extends PDFTextStripper {
 //class BoundingBox extends DrawPrintTextLocations {
@@ -678,7 +639,8 @@ class BoundingBox extends PDFTextStripper {
 
         ArrayList<Line> allLines =  currentPage.Lines;
         ArrayList<Bars> allBars = currentPage.bars;
-        System.out.println(currentPage.bars);
+        System.out.println("All bars found on this page:\n" + currentPage.bars);
+        // TODO: this for loop seems to be a good place for square root detection to go
         for(int i=0;i<allBars.size();i++) {
             int lastChar = currentPage.pageCharacters.size();
             int aboveLine = 0;
@@ -687,10 +649,11 @@ class BoundingBox extends PDFTextStripper {
             for (int j = 0; j < allLines.size(); j++) {
                 try {
                     if ((allLines.get(j).baseLine.startY > allBars.get(i).boundingBox.startY)){ //&&
-                        System.out.println("Above line");
+                        // TODO: commented out this and below print debuggers. Remove lines if no longer needed.
+//                        System.out.println("Above line");
                         aboveLine = j;
                     } else if ((allLines.get(j).baseLine.startY <= allBars.get(i).boundingBox.startY)){// &&
-                        System.out.println("belowline");
+//                        System.out.println("Below line");
                         //belowLine = j;
                         Line line = allLines.get(aboveLine);
                         ArrayList<Words> wordlist = line.words;

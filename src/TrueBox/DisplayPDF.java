@@ -76,17 +76,22 @@ class DisplayPDF {
                             xmlFormat="\t\t\t</CompoundChar>\n";
                             builder.append(xmlFormat);
                         }
-                        //System.out.println(mergeID);
-                        xmlFormat="\t\t\t<CompoundChar id=\""+page.pageCompundCharacters.get(mergeID).charId+"\" " +
-                                "BBOX=\""+page.pageCompundCharacters.get(mergeID).boundingBox.startX+" "+
-                                +page.pageCompundCharacters.get(mergeID).boundingBox.startY+" "+
-                                +page.pageCompundCharacters.get(mergeID).boundingBox.width+" "+
-                                +page.pageCompundCharacters.get(mergeID).boundingBox.height+"\" "+
-                                "Label=\""+page.pageCompundCharacters.get(mergeID).value+"\">\n";
-                        builder.append(xmlFormat);
-                        prevMergeId=mergeID;
-                                compoundIndent="\t";
-                                compoundOpen=true;
+
+                        //TODO: this portion cannot find the merge IDs for any sqrt symbols in particular.
+                        try {
+                            xmlFormat = "\t\t\t<CompoundChar id=\"" + page.pageCompundCharacters.get(mergeID).charId + "\" " +
+                                    "BBOX=\"" + page.pageCompundCharacters.get(mergeID).boundingBox.startX + " " +
+                                    +page.pageCompundCharacters.get(mergeID).boundingBox.startY + " " +
+                                    +page.pageCompundCharacters.get(mergeID).boundingBox.width + " " +
+                                    +page.pageCompundCharacters.get(mergeID).boundingBox.height + "\" " +
+                                    "Label=\"" + page.pageCompundCharacters.get(mergeID).value + "\">\n";
+                            builder.append(xmlFormat);
+                            compoundIndent = "\t";
+                            compoundOpen = true;
+                        } catch(NullPointerException npe) {
+                            System.out.println("Merge ID " + mergeID + " for letter " + word.characters.get(charIter).value + " not found in compound chars. Moving on.");
+                        }
+                        prevMergeId = mergeID;
 
                     }
                     if(mergeID==0 && compoundOpen){

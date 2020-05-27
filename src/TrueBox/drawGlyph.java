@@ -298,12 +298,14 @@ class drawGlyph {
                     //System.out.println("quad " + segmentCount);
                     break;
             }
-//            allx1.add(coords[0]);
-//            ally1.add(coords[1]);
-//            allx2.add(coords[2]);
-//            ally2.add(coords[3]);
-//            allx3.add(coords[4]);
-//            ally3.add(coords[5]);
+
+            // adds the coordinate data to the lists for lookup later
+            allx1.add(coords[0]);
+            ally1.add(coords[1]);
+            allx2.add(coords[2]);
+            ally2.add(coords[3]);
+            allx3.add(coords[4]);
+            ally3.add(coords[5]);
 
             //           System.out.println();
             iter.next();

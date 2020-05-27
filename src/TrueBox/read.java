@@ -52,6 +52,7 @@ class read extends PDFTextStripper{
         int numPages = document.getNumberOfPages();
 
         for(int i=0;i<numPages;i++){
+            System.out.println("Processing page " + i);
             PageStructure currentPage = readText(i);
             allPages.add(currentPage);
         }
