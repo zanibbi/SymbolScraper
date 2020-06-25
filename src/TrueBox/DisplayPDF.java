@@ -119,17 +119,21 @@ class DisplayPDF {
                     }else {
                       color=colorString(textColor.color);
                     }
-                    xmlFormat=compoundIndent+"\t\t\t<Char id=\""+word.characters.get(charIter).charId+"\" mergeId=\""+word.characters.get(charIter).mergeId+"\" "+
-                            "BBOX=\""+word.characters.get(charIter).boundingBox.startX+" "+
-                            word.characters.get(charIter).boundingBox.startY+" "+
-                            word.characters.get(charIter).boundingBox.width+" "+
-                            word.characters.get(charIter).boundingBox.height+"\" "+
-                            color+">"+
-                            word.characters.get(charIter).value;
-                    //System.out.print(word.characters.get(charIter).value);
-                    builder.append(xmlFormat);
-                    xmlFormat="</Char>\n";
-                    builder.append(xmlFormat);
+                    try {
+                        xmlFormat = compoundIndent + "\t\t\t<Char id=\"" + word.characters.get(charIter).charId + "\" mergeId=\"" + word.characters.get(charIter).mergeId + "\" " +
+                                "BBOX=\"" + word.characters.get(charIter).boundingBox.startX + " " +
+                                word.characters.get(charIter).boundingBox.startY + " " +
+                                word.characters.get(charIter).boundingBox.width + " " +
+                                word.characters.get(charIter).boundingBox.height + "\" " +
+                                color + ">" +
+                                word.characters.get(charIter).value;
+                        //System.out.print(word.characters.get(charIter).value);
+                        builder.append(xmlFormat);
+                        xmlFormat = "</Char>\n";
+                        builder.append(xmlFormat);
+                    } catch(NullPointerException npe) {
+                        // TODO
+                    }
                 }
                 if(prevMergeId!=0){
                     //xmlFormat+="\t\t\t</CompoundChar>\n";

@@ -55,6 +55,9 @@ class read extends PDFTextStripper{
             System.out.println("Processing page " + i);
             PageStructure currentPage = readText(i);
             allPages.add(currentPage);
+//            if (i >= 30) {
+//                break; // TODO: used on a laptop with too little memory
+//            }
         }
 
         return allPages;
@@ -67,7 +70,13 @@ class read extends PDFTextStripper{
                 new HashMap<Integer, compundCharacter>(),null);
         BoundingBox BBox = new BoundingBox(document,pagenum,page);
         String transformation = BBox.getGeometricInfo(pagenum);
-        metadata meta = new metadata(BBox.lineId,BBox.wordId,BBox.charId, transformation);
+
+        // this is the easiest way to get the width/height
+        // storing so it can go in the XML for later use
+        float pageWidth = page.pageCharacters.get(0).charInfo.getPageWidth();
+        float pageHeight = page.pageCharacters.get(0).charInfo.getPageHeight();
+
+        metadata meta = new metadata(BBox.lineId,BBox.wordId,BBox.charId, transformation, pageWidth, pageHeight);
         page.meta=meta;
         // System.out.println("PageNume::"+BBox.pageNum+" Lines::"+BBox.lineId+" Words::"+  BBox.wordId+" Characters::"+BBox.charId);
         return page;

@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.apache.pdfbox.contentstream.PDFGraphicsStreamEngine;
+import org.apache.pdfbox.contentstream.operator.state.SetLineWidth;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -50,6 +51,7 @@ class BarDetection extends PDFGraphicsStreamEngine {
      */
     protected BarDetection(PDPage page) {
         super(page);
+
         this.page=page;
     }
 
@@ -148,13 +150,20 @@ class BarDetection extends PDFGraphicsStreamEngine {
         glyph.coordinates();
         glyph.BoxCoord();
         //glyph.saveAsImage();
-        allBars.add(new Bars(new BBOX((float)glyph.minX,(float)glyph.minY,(float)(glyph.maxX-glyph.minX),(float)(glyph.maxY-glyph.minY))));
-        /*
-        allBars.add(new Bars(new BBOX((float)linePath.getBounds2D().getMinX(),(float)linePath.getBounds2D().getMinY(),
-                (float)(linePath.getBounds2D().getMaxX()-linePath.getBounds2D().getMinX()),
-                (float)(linePath.getBounds2D().getMaxY()-linePath.getBounds2D().getMinY()))));
-        */
 
+        if (glyph.minX > 0 && glyph.minY > 0) {
+            // this is a complex line so it has a real bounding box
+            allBars.add(new Bars(new BBOX((float)glyph.minX,(float)glyph.minY,(float)(glyph.maxX-glyph.minX),(float)(glyph.maxY-glyph.minY))));
+        }
+        else {
+            // this is a very simple line with the basic width, and is likely either a fraction, sqrt, or general page line
+            // because the glyph stuff above didn't find data, the line with is going to be assumed at 0.5pt
+            // TODO: if the line width is strange, there may be another case to cover here
+            allBars.add(new Bars(new BBOX((float) linePath.getBounds2D().getMinX(), (float) (linePath.getBounds2D().getMinY() - .25),
+                    (float) (linePath.getBounds2D().getMaxX() - linePath.getBounds2D().getMinX()),
+                    (float) (.5))));
+//                (float)(linePath.getBounds2D().getMaxY()-linePath.getBounds2D().getMinY()))));
+        }
         linePath.reset();
     }
 

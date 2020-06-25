@@ -107,9 +107,10 @@ class drawGlyph {
     }
 
     public double adjustResolution(double coord,float fontSize){
-        float pixel_size = fontSize * 72 /72;
+        float pixel_size = fontSize * 72 /72; // TODO: why multiply and then divide?
         return (coord * pixel_size)/EmSqaure;
     }
+
     public void adjustCoordResolution(){
 
         GeneralPath newPath = new GeneralPath();

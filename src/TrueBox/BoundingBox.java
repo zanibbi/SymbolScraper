@@ -31,6 +31,8 @@ import org.apache.pdfbox.pdmodel.font.*;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
+import org.apache.fontbox.ttf.TrueTypeFont;
+import org.apache.pdfbox.util.Matrix;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -238,45 +240,49 @@ class BoundingBox extends PDFTextStripper {
             //                       "Adjusted X,Y Position (0,0 upper sleft staritng point): " + text.getX() + text.getY() + "\n";  
 
 
+            // starting information for lower left corner coords - shifted by offsets later
             float startX = text.getTextMatrix().getTranslateX();
             float startY = text.getTextMatrix().getTranslateY();
-        	
-            // String afterTranslationInfo = "Translated X, Y Position: " + startX + "," + startY; 
-            // System.out.println(originalInfo + afterTranslationInfo);
-            
-//            if(first) {
-//            	transformation = startX + "," + startY;
-//            	System.out.println("--> X " + startX + " Y " + startY);
-//            	//System.out.println("w,h --> " + text.getWidth() + " , " + text.getHeight());
-//            	first = false;
-//            }
-//            
+
             currentPage.xmax = Math.max(startX, currentPage.xmax);
             currentPage.xmin = Math.min(startX, currentPage.xmin);
             currentPage.ymax = Math.max(startY + text.getHeight(), currentPage.ymax);
             currentPage.ymin = Math.min(startY + text.getHeight(), currentPage.ymin);
             
-            float fontSize = text.getFontSize();
+            float fontSize = text.getFontSizeInPt();
+            Matrix scalingMatrix = text.getTextMatrix(); // this is the thing the fonts are scaled by!!
 
             PDFont font = text.getFont();
-//            System.out.println(font);
-            drawGlyph glyph=null;
+            drawGlyph glyph = null;
+
+            // automatically determine the [likely] em square size - more accurate fine tuning per font later
+            int emSquare = (int) (character.charInfo.getFont().getBoundingBox().getUpperRightX() - character.charInfo.getFont().getBoundingBox().getLowerLeftX());
+            if (emSquare > 1550) { // TODO: this cutoff of 1550 works well it seems
+                emSquare = 2048;
+            } else {
+                emSquare = 1000;
+            }
 
             if (font instanceof PDTrueTypeFont){
 //                System.out.println("TrueType Font");
                 PDTrueTypeFont TTFfont = (PDTrueTypeFont) font;
+                emSquare = TTFfont.getTrueTypeFont().getHeader().getUnitsPerEm();
                 glyph = new drawGlyph(TTFfont.getPath(text.getCharacterCodes()[0]),
-                        text.getCharacterCodes()[0], text.getUnicode(), fontSize, 180);
+                        text.getCharacterCodes()[0], text.getUnicode(), fontSize, emSquare);
             }
             else if (font instanceof PDType1Font) {
 //                System.out.println("Type1Font");
                 PDType1Font Type1font = (PDType1Font) font;
                 FontBoxFont FBFont = Type1font.getFontBoxFont();
-                Type1Font T1Font = (Type1Font) FBFont;
-//                //debug
-//                Utilities ut = new Utilities();
-//                ut.debugTextType1Stats(font, text);
                 try {
+                    emSquare = ((TrueTypeFont) FBFont).getUnitsPerEm();
+                } catch (ClassCastException cce) {
+                    // this emSquare setting works for some Type 1 fonts, others it doesn't
+                    // for those it doesn't work for, it's OK, the above general check is accurate
+                }
+
+                try {
+                    // TODO: this is for diacritics. Not sure if it's currently doing anything. Investigate later
                     GeneralPath diacriticpath = (GeneralPath) Type1font.getPath(Type1font.getGlyphList().codePointToName(text.getUnicode().codePointAt(1)).replace("cmb", "")).clone();
                     GeneralPath basepath = (GeneralPath) Type1font.getPath(Type1font.codeToName(text.getCharacterCodes()[0])).clone();
                     Rectangle bounds = diacriticpath.getBounds();
@@ -289,7 +295,7 @@ class BoundingBox extends PDFTextStripper {
                         AffineTransform transform = new AffineTransform();
                         basepath.append(diacriticpath.getPathIterator(transform), true);
                         glyph = new drawGlyph(basepath,
-                                text.getCharacterCodes()[0], text.getUnicode(), fontSize, 1000);
+                                text.getCharacterCodes()[0], text.getUnicode(), fontSize, emSquare);
 
                     } else { // upper case with ascending accent
                         AffineTransform transform = new AffineTransform();
@@ -300,27 +306,27 @@ class BoundingBox extends PDFTextStripper {
                         transform.translate(0, newy);
                         basepath.append(diacriticpath.getPathIterator(transform), true);
                         glyph = new drawGlyph(basepath,
-                                text.getCharacterCodes()[0], text.getUnicode(), fontSize, 1000);
+                                text.getCharacterCodes()[0], text.getUnicode(), fontSize, emSquare);
 
                     }
                 } catch (Exception e) {
 //                    System.out.println("No code point at 1.");
 //                    System.out.println(e);
                     glyph = new drawGlyph(Type1font.getPath(Type1font.codeToName(text.getCharacterCodes()[0])),
-                            text.getCharacterCodes()[0], text.getUnicode(), fontSize, 1000);
+                            text.getCharacterCodes()[0], text.getUnicode(), fontSize, emSquare);
                 }
 
             }
             else if (font instanceof PDType1CFont) {
 //                System.out.println("Type1CFont");
                 PDType1CFont Type1Cfont = (PDType1CFont) font;
-                System.out.println(Type1Cfont.isEmbedded());
+//                System.out.println(Type1Cfont.isEmbedded());
                 if(true) {
                     glyph = new drawGlyph(Type1Cfont.getPath(Type1Cfont.codeToName(text.getCharacterCodes()[0])),
-                            text.getCharacterCodes()[0], text.getUnicode(), fontSize, 87);
+                            text.getCharacterCodes()[0], text.getUnicode(), fontSize, emSquare);
                 } else {
                     glyph = new drawGlyph(Type1Cfont.getPath(Type1Cfont.codeToName(text.getCharacterCodes()[0])),
-                            text.getCharacterCodes()[0], text.getUnicode(), fontSize, 185);
+                            text.getCharacterCodes()[0], text.getUnicode(), fontSize, emSquare);
                 }
             }
             else if (font instanceof PDType0Font) { //CID Fonts
@@ -330,60 +336,55 @@ class BoundingBox extends PDFTextStripper {
                 int emsize = 1000;
 
                 if (descendant instanceof PDCIDFontType2) {
-                    emsize = 2048;
+                    emsize = ((PDCIDFontType2) descendant).getTrueTypeFont().getHeader().getUnitsPerEm();
                 } else if (descendant instanceof PDCIDFontType0){
                     emsize = 1000;
                 }
                 glyph = new drawGlyph(Type0font.getPath(text.getCharacterCodes()[0]),
                         text.getCharacterCodes()[0], text.getUnicode(), fontSize, emsize);
-                //glyph.draw(type.Normal);
             }
             else if (font instanceof PDType3Font) {
-                PDType3Font Type3font = (PDType3Font) font;
-                glyph = new drawGlyph(Type3font.getPath(Type3font.getName()),
-                        text.getCharacterCodes()[0], text.getUnicode(), fontSize,1000);
+                // TODO: an attempt at making Type 3 work. It still doesn't, unfortunately. Future work
+                // currently makes tiny little boxes in the bottom left corners of characters
+                PDType1Font maskFont = PDType1Font.TIMES_ROMAN;
+                glyph = new drawGlyph(maskFont.getPath(maskFont.getName()),
+                        text.getCharacterCodes()[0], text.getUnicode(), fontSize, emSquare);
             }else{
                 //PDType1Font font1 = (PDType1Font) font;
-                System.out.println("Unknown font type, skipping character at"+" Page:"+pageNum+" Label::" +text.getUnicode());
+                System.out.println("Unknown font type, skipping character at"+" Page:"+pageNum+" Label::" +text.getUnicode() + ". Font descriptor: " + font.getFontDescriptor());
                 continue;
             }
 
+            PDType1Font maskFont = PDType1Font.TIMES_ROMAN; //masking font for Type 3
+            double width, height;
             try {
                 glyph.coordinates();
                 glyph.BoxCoord();
+
+                character.glyph=glyph;
+
+                width = glyph.adjustResolution(glyph.maxX, scalingMatrix.getScaleX()) - glyph.adjustResolution(glyph.minX, scalingMatrix.getScaleX());
+                height = glyph.adjustResolution(glyph.maxY, scalingMatrix.getScaleY()) - glyph.adjustResolution(glyph.minY, scalingMatrix.getScaleY());
             }catch(Exception e){
-                System.out.println("Error at::"+" Page:"+pageNum+" Label::" +text.getUnicode());
-                e.printStackTrace();
+                //TODO: this was to deal with Type 3 fonts, we might not need the try catch anymore
+                width = (text.getWidth());
+                height = character.charInfo.getHeight();  //scalingMatrix.getScaleY();
             }
-            character.glyph=glyph;
 
-            double width = glyph.adjustResolution(glyph.maxX, fontSize) - glyph.adjustResolution(glyph.minX, fontSize);
-            double height = glyph.adjustResolution(glyph.maxY, fontSize) - glyph.adjustResolution(glyph.minY, fontSize);
+            // updating starting point by shifting by x and y offsets
+            // shift x coordinate
+            double widthRatio = width / (glyph.maxX - glyph.minX);
+            startX = startX + (float)(widthRatio * glyph.minX);
 
-            // Update starting point (Y-axis)
+            // shift y coordinate
             double heightRatio = height / (glyph.maxY-glyph.minY);
-            if (glyph.minY < 0) {
-                double decentheight = heightRatio * glyph.minY;
-                startY = startY + (float) decentheight;
-            } else if (glyph.minY > 0) {
-                double baseAccent = heightRatio * glyph.minY;
-                startY = startY + (float) baseAccent;
-            }
-            // Update starting point (X-axis)
-            //double widthRatio = width / (font.getWidthFromFont(text.getCharacterCodes()[0]));
-            double widthRatio=heightRatio;
-            if (glyph.minX < 0) {
-                double leftMove = widthRatio * glyph.minX;
-                startX = startX + (float) leftMove;
-            } else if (glyph.minX > 0) {
-                double rightMove = widthRatio * glyph.minX;
-                startX = startX + (float) rightMove;
-            }
+            startY = startY + (float)(heightRatio * glyph.minY);
 
             character.boundingBox = new BBOX(startX, startY, (float) width, (float) height);
 
 
-            if(character.glyph.segmentCount > 1) { // check command line flag
+            // TODO: what is this for? Investigate later
+            if(character.glyph != null && character.glyph.segmentCount > 1) { // check command line flag
                 character.segmentBoxes = new ArrayList<BBOX>();
                 for(int i = 0; i < character.glyph.segmentCount; i++){
                     startX = text.getTextMatrix().getTranslateX();
@@ -399,24 +400,12 @@ class BoundingBox extends PDFTextStripper {
 //                     Update starting point (Y-axis)
                     heightRatio =
                             height / (glyph.compMaxY.get(i) - glyph.compMinY.get(i));
-                    if (glyph.compMinY.get(i) < 0) {
-                        double decentheight =
-                                heightRatio * glyph.compMinY.get(i);
-                        startY = startY + (float) decentheight;
-                    } else if (glyph.compMinY.get(i) > 0) {
-                        double baseAccent = heightRatio * glyph.compMinY.get(i);
-                        startY = startY + (float) baseAccent;
-                    }
+                    startY = startY + (float)(heightRatio * glyph.compMinY.get(i));
+
                     // Update starting point (X-axis)
                     //double widthRatio = width / (font.getWidthFromFont(text.getCharacterCodes()[0]));
-                    widthRatio = heightRatio;
-                    if (glyph.compMinX.get(i) < 0) {
-                        double leftMove = widthRatio * glyph.compMinX.get(i);
-                        startX = startX + (float) leftMove;
-                    } else if (glyph.compMinX.get(i) > 0) {
-                        double rightMove = widthRatio * glyph.compMinX.get(i);
-                        startX = startX + (float) rightMove;
-                    }
+                    widthRatio = heightRatio; // TODO: probably not a good idea
+                    startX = startX + (float)(widthRatio * glyph.compMinX.get(i));
 
                     character.segmentBoxes.add(new BBOX(startX, startY,
                             (float) width, (float) height));
@@ -424,11 +413,6 @@ class BoundingBox extends PDFTextStripper {
 
             }
 
-
-
-            // String bbox_str = character.boundingBox.startX + "," + character.boundingBox.startY + "," +
-            //                   character.boundingBox.width + "," + character.boundingBox.height;  
-            // System.out.println("Computed BBox (X, Y, W, H):" + bbox_str + "\n");
 
             if(character.value.equals('\u221A') || character.value.equals('\u23B7') || character.value.equals("√") ) {
                 radical.add(character);

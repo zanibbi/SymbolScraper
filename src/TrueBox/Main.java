@@ -314,7 +314,7 @@ public class Main {
                 for(int i = 0; i < listOfFiles.length; i++) {
                     File dirFile = listOfFiles[i];
                     if (dirFile.isFile() && dirFile.getName().endsWith(".pdf")) {
-                        Inpfilename = dirFile.getName().split("\\.")[0];
+                        Inpfilename = dirFile.getName().split("\\.pdf")[0];
                         System.out.println("\n\nFile :\t"+dirFile.getName());
                         String inFile = inpfile+fileseparator+dirFile.getName(); 
                         mathextract(inFile);
@@ -324,14 +324,14 @@ public class Main {
                 //System.exit(0);
             }else{
                 String[] filearray = inpfile.split(fileseparator);
-                Inpfilename = filearray[filearray.length - 1].split("\\.")[0];
+                Inpfilename = filearray[filearray.length - 1].split("\\.pdf")[0];
                 mathextract(inpfile);
             }
 
         }
         else {
             String[] filearray = inpfile.split(fileseparator);
-            Inpfilename = filearray[filearray.length - 1].split("\\.")[0];
+            Inpfilename = filearray[filearray.length - 1].split("\\.pdf")[0];
 
             for (int iter = 0; iter < filearray.length - 1; iter++) {
                 OutDir += filearray[iter] + fileseparator;
@@ -395,13 +395,15 @@ public class Main {
             		
 	            	System.out.println(allPages.get(i).xmin + ", " + allPages.get(i).ymax + ", " + allPages.get(i).xmax + ", " + allPages.get(i).ymin);
 	            	
-//	                pageMetrics+="\t<page>\n";
-//	                pageMetrics+="\t\t<no>"+i+"</no>\n";
-//	                pageMetrics+="\t\t<lines>"+allPages.get(i).meta.linecount+"</lines>\n";
-//	                pageMetrics+="\t\t<words>"+allPages.get(i).meta.wordcount+"</words>\n";
-//	                pageMetrics+="\t\t<characters>"+allPages.get(i).meta.charactercount+"</characters>\n";
-//	                pageMetrics+="\t</page>\n";
-//	
+	                pageMetrics+="\t<page>\n";
+	                pageMetrics += "\t\t<pagewidth>" + allPages.get(i).meta.pageWidth + "</pagewidth>\n";
+                    pageMetrics += "\t\t<pageheight>" + allPages.get(i).meta.pageHeight + "</pageheight>\n";
+	                pageMetrics+="\t\t<no>"+i+"</no>\n";
+	                pageMetrics+="\t\t<lines>"+allPages.get(i).meta.linecount+"</lines>\n";
+	                pageMetrics+="\t\t<words>"+allPages.get(i).meta.wordcount+"</words>\n";
+	                pageMetrics+="\t\t<characters>"+allPages.get(i).meta.charactercount+"</characters>\n";
+	                pageMetrics+="\t</page>\n";
+
 	            }
 	            pageMetrics+="</pagemetrics>\n";
 	

@@ -63,6 +63,9 @@ public class drawBBOX {
         List<String[]> logData = new ArrayList<String[]>();
         logData.add(new String[] {"Page Number", "Parse Succeeded", "Parse Failed"});
         for(int i=0;i<allPages.size();i++){
+//            if (i > 30) {
+//                break; // TODO: used on laptop with too little memory
+//            }
             try {
             draw(i,t);
                 logData.add(new String[] {String.valueOf(i + 1), "1", "0"});
@@ -84,6 +87,11 @@ public class drawBBOX {
 
         Iterator iter = charList.entrySet().iterator();
 
+        // temporary box around the entire page for visualizing where the page is
+        contentStream.addRect(page.getBBox().getLowerLeftX(), page.getBBox().getLowerLeftY(), page.getBBox().getWidth(), page.getBBox().getHeight());
+        contentStream.setStrokingColor(Color.magenta);
+        contentStream.stroke();
+
         while (iter.hasNext()) {
             Map.Entry pair = (Map.Entry) iter.next();
             characterInfo character = (characterInfo) pair.getValue();
@@ -95,17 +103,50 @@ public class drawBBOX {
                 contentStream.setStrokingColor(Color.PINK);
                 contentStream.stroke();
             }else {
-                contentStream.addRect(box.startX, box.startY, box.width, box.height);
-                //contentStream.addRect(character.charInfo.getTextMatrix().getTranslateX(), character.charInfo.getTextMatrix().getTranslateY(), character.charInfo.getWidth(), character.charInfo.getHeight());
-                if (t == doctype.Filtered) {
-                    contentStream.setNonStrokingColor(Color.WHITE);
-                    contentStream.fill();
-                } else if (t == doctype.Normal) {
-                    contentStream.setLineWidth((float) 0.2);
-                    contentStream.setStrokingColor(Color.GREEN);
-                    contentStream.stroke();
-                } else {
-                    System.out.println("Invalid doctype input for character::" + character.value);
+                //character.charInfo.getTextMatrix().setValue(0, 2, 15);
+                try {
+                    int rotation = 0; //character.charInfo.getRotation();  // TODO: this is the PAGE'S rotation, not text.
+                    if (rotation != 0) {  // TODO: for rotation to work, we need to find the ACTUAL rotation.
+                        // we need to draw each side manually for the rotated character/bbox
+                        // lines are drawn from lower left corner, anticlockwise back to it
+                        
+                        // first, start at lower left corner
+                        contentStream.moveTo(box.startX, box.startY);
+                        
+                        // find new lower right corner and draw the line
+                        double lowerRightX = box.width * Math.cos(rotation);
+                        double lowerRightY = box.width * Math.sin(rotation);
+                        contentStream.lineTo((float) lowerRightX, (float) lowerRightY);
+                        
+                        // find new upper right corner and draw the line
+                        double upperRightX = lowerRightX - box.height * Math.sin(rotation);
+                        double upperRightY = lowerRightY + box.height * Math.cos(rotation);
+                        contentStream.lineTo((float) upperRightX, (float) upperRightY);
+
+                        // find new upper left corner and draw the line
+                        double upperLeftX = box.startX - box.height * Math.sin(rotation);
+                        double upperLeftY = box.height * Math.cos(rotation);
+                        contentStream.lineTo((float) upperLeftX, (float) upperLeftY);
+
+                        // final stroke
+                        contentStream.lineTo(box.startX, box.startY);
+                        
+                    } else {
+                        contentStream.addRect(box.startX, box.startY, box.width, box.height);
+                    }
+                    //contentStream.addRect(character.charInfo.getTextMatrix().getTranslateX(), character.charInfo.getTextMatrix().getTranslateY(), character.charInfo.getWidth(), character.charInfo.getHeight());
+                    if (t == doctype.Filtered) {
+                        contentStream.setNonStrokingColor(Color.WHITE);
+                        contentStream.fill();
+                    } else if (t == doctype.Normal) {
+                        contentStream.setLineWidth((float) 0.2);
+                        contentStream.setStrokingColor(Color.GREEN);
+                        contentStream.stroke();
+                    } else {
+                        System.out.println("Invalid doctype input for character::" + character.value);
+                    }
+                } catch (NullPointerException npe) {
+                    // TODO
                 }
             }
         }

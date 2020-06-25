@@ -177,12 +177,16 @@ class metadata{
     int wordcount;
     int charactercount;
     String transformation;
+    float pageWidth;
+    float pageHeight;
     
-    metadata(int linecount,int wordcount, int charactercount, String transformation){
+    metadata(int linecount,int wordcount, int charactercount, String transformation, float pageWidth, float pageHeight){
         this.linecount=linecount;
         this.wordcount=wordcount;
         this.charactercount=charactercount;
         this.transformation = transformation;
+        this.pageWidth = pageWidth;
+        this.pageHeight = pageHeight;
     }
 }
 
